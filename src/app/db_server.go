@@ -1,10 +1,12 @@
-package db
+package main
+
 import (
 	"config"
 	"flag"
 	"fmt"
 	"os"
 	"utils"
+	"app/db"
 )
 
 func main() {
@@ -21,6 +23,8 @@ func main() {
 
 	log.SetConfig(log_opt)
 
-	log.Infoln("test log")
+	log.Infoln("db_server will be start")
 	log.Infoln(opt)
+	dbProxy := db.NewDbProxy()
+	dbProxy.Init(&opt)
 }
