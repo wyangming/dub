@@ -20,4 +20,6 @@ type ISession interface {
 	SetSessionData(key string, val interface{})
 	//得到session数据
 	GetSessionData(key string) interface{}
+	//删除session中的数据
+	DelSessionData(key string)
 }
