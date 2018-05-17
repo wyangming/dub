@@ -2,8 +2,8 @@ package db
 
 import (
 	"database/sql"
-	"utils"
-	"define"
+	"dub/utils"
+	"dub/define"
 )
 
 const (

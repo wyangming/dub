@@ -1,12 +1,12 @@
 package main
 
 import (
-	"config"
+	"dub/config"
 	"flag"
 	"fmt"
 	"os"
-	"utils"
-	"app/db"
+	"dub/utils"
+	"dub/app/db"
 )
 
 func main() {

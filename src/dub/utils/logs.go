@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"define"
+	"dub/define"
 	"fmt"
 	"os"
 	"runtime"

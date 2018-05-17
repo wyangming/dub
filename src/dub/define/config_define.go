@@ -2,6 +2,7 @@ package define
 
 type DatabaseServerConfig struct {
 	Ip string //绑定的ip地址及端口
+	Register string//注册服务器
 }
 
 type LogConfig struct {

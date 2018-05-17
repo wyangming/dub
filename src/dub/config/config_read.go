@@ -1,7 +1,7 @@
 package config
 
 import (
-	"define"
+	"dub/define"
 )
 
 //得到数据服务器的配置与日志配置
@@ -21,18 +21,33 @@ func GetDatabaseServerConfig(path string) (define.DatabaseServerConfig, define.L
 		return db_opt, log_opt, err
 	}
 
-	log_opt.Level, err = c.GetString("log", "level")
+	db_opt.Register, err = c.GetString("net", "register")
 	if err != nil {
 		return db_opt, log_opt, err
 	}
-	log_opt.DeviceName, err = c.GetString("log", "diveName")
-	if err != nil {
-		return db_opt, log_opt, err
-	}
-	log_opt.MaxSize, err = c.GetInt("log", "maxSize")
+
+	err = fullLog(c, &log_opt)
 	if err != nil {
 		return db_opt, log_opt, err
 	}
 
 	return db_opt, log_opt, nil
+}
+
+//从配置文件里返回服务的日志对你
+func fullLog(c *ConfigFile, log_opt *define.LogConfig) error {
+	var err error
+	log_opt.Level, err = c.GetString("log", "level")
+	if err != nil {
+		return err
+	}
+	log_opt.DeviceName, err = c.GetString("log", "diveName")
+	if err != nil {
+		return err
+	}
+	log_opt.MaxSize, err = c.GetInt("log", "maxSize")
+	if err != nil {
+		return err
+	}
+	return nil
 }
