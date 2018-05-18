@@ -1,9 +1,10 @@
-package iframe
+package frame
 
 import (
 	"net"
 	"sync"
 	"time"
+	"errors"
 )
 
 const (
@@ -15,7 +16,7 @@ type SocketConnector struct {
 	autoReconnectSec int                               //重连间隔，0为不重连
 	cloneSignal      chan bool                         //关闭信号
 	stream           PacketStream                      //读写流
-	writeChan        interface{}                       //写入通道
+	writeChan        chan interface{}                  //写入通道
 	iskeep           bool                              //是否保持长连
 	ip               string                            //连接服务器的ip
 	endSync          sync.WaitGroup                    //同步锁
@@ -65,7 +66,7 @@ func (s *SocketConnector) sendThread() {
 	}
 
 exist_loop:
-	// 关闭socket,触发读错误, 结束读循环
+// 关闭socket,触发读错误, 结束读循环
 	s.stream.Close()
 	// 通知接收线程ok
 	s.endSync.Done()
@@ -105,6 +106,8 @@ func (s *SocketConnector) existThread() {
 	s.endSync.Add(2)
 	// 等待2个任务结束
 	s.endSync.Wait()
+	//停止发送心中包
+	s.ticker.Stop()
 
 	if s.iskeep {
 		for {
@@ -113,7 +116,6 @@ func (s *SocketConnector) existThread() {
 				break
 			}
 		}
-
 	}
 }
 

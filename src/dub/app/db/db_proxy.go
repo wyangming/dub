@@ -17,7 +17,7 @@ type DbProxy struct {
 
 //初始化数据库代理的信息
 func (d *DbProxy) Init(cfg *define.DatabaseServerConfig) error {
-	d.log.Infof("db_server %s db_server start ...\n", cfg.Ip)
+	d.log.Infof("db_server %s db_server start ...\n", cfg.Addr)
 
 	d.dbMap = make(map[int]*sql.DB)
 	return nil

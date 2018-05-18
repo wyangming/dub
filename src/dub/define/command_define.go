@@ -2,10 +2,11 @@ package define
 
 //命令定义
 const (
-	Reg_Command = iota //注册服务器命令
+	Command_Reg = iota //注册服务器命令
 )
 
 //注册服务器子命令
 const (
-	Reg_Sub_CommandNet = iota //心跳包命令
+	CommandSub_Reg_Net        = iota //心跳包命令
+	CommandSub_Reg_ServerType        //服务器类型命令
 )

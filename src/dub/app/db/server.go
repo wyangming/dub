@@ -2,10 +2,13 @@ package db
 
 import (
 	"dub/common"
+	"fmt"
 	"dub/config"
 	"dub/define"
 	"dub/utils"
 	"os"
+	"dub/frame"
+	json "github.com/json-iterator/go"
 )
 
 type DbServer struct {
@@ -17,39 +20,63 @@ type DbServer struct {
 
 func (d *DbServer) Init(cfgPath string) {
 	//读取配置
-	opt, log_opt, err := config.GetDatabaseServerConfig(cfgPath)
+	var err error
+	d.dbCfg, d.logCfg, err = config.GetDatabaseServerConfig(cfgPath)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
 	}
 
+	//日志信息
 	log := utils.NewLogger()
-	log.SetConfig(log_opt)
-	d.log = log
+	log.SetConfig(d.logCfg)
+	d.log=log
 
-	conn := NewConnector()
-	conn.CallBack = d.callBack
+	//连接注册服务器
+	conn := frame.NewConnector()
+	conn.CallBack = d.connCallBack
 	d.regConn = conn
+	err = d.regConn.Start(d.dbCfg.RegAddr)
+	if err != nil {
+		d.log.Errorf("server.go reg method d.regConn.Start(d.dbCfg.Register) err %v\n", err)
+		os.Exit(2)
+	}
+	d.reg()
 
 	//数据库代理
 	dbProxy := NewDbProxy()
-	dbProxy.Init(&opt)
+	dbProxy.Init(&d.dbCfg)
 
 	log.Infoln("db_server start")
 }
 
 //向注册服务器发注册命令
 func (d *DbServer) reg() {
-	err := d.regConn.Start(d.dbCfg.Register)
-	if err != nil {
-		d.log.Errorf("db app server.go reg method d.regConn.Start(d.dbCfg.Register) err %v\n", err)
-		os.Exit(2)
-	}
+	//如果有问题重新发送命令
+	for{
+		serverInfo := &define.ModelRegReqServerType{
+			Addr:       d.dbCfg.Addr,
+			ServerName: "dbServer",
+		}
+		data,err:=json.Marshal(serverInfo)
+		if err!=nil {
+			d.log.Errorf("server.go reg method json.Marshal(serverInfo) err %v\n",err)
+			continue
+		}
 
+		//发送注册命令
+		err=d.regConn.Send(define.Command_Reg, define.CommandSub_Reg_ServerType, data)
+		if err!=nil {
+			d.log.Errorf("server.go reg method d.regConn.Send(define.Command_Reg, define.CommandSub_Reg_ServerType, data) err %v\n",err)
+			continue
+		}
+		break
+	}
 }
 
-func (d *DbServer) callBack(mainId, subId uint16, data []byte) bool {
-
+//
+func (d *DbServer) connCallBack(mainId, subId uint16, data []byte) bool {
+	return false
 }
 
 var dbServer *DbServer

@@ -4,6 +4,31 @@ import (
 	"dub/define"
 )
 
+//得到注册服务器与其他日志的配置
+func GetRegisterServerConfig(path string) (define.RegisterServerConfig, define.LogConfig, error) {
+	var (
+		reg_opt define.RegisterServerConfig
+		log_opt define.LogConfig
+	)
+
+	c, err := ReadConfigFile(path)
+	if err != nil {
+		return reg_opt, log_opt, err
+	}
+
+	reg_opt.Addr, err = c.GetString("net", "addr")
+	if err != nil {
+		return reg_opt, log_opt, err
+	}
+
+	err = fullLog(c, &log_opt)
+	if err != nil {
+		return reg_opt, log_opt, err
+	}
+
+	return reg_opt, log_opt, nil
+}
+
 //得到数据服务器的配置与日志配置
 func GetDatabaseServerConfig(path string) (define.DatabaseServerConfig, define.LogConfig, error) {
 	var (
@@ -16,12 +41,12 @@ func GetDatabaseServerConfig(path string) (define.DatabaseServerConfig, define.L
 		return db_opt, log_opt, err
 	}
 
-	db_opt.Ip, err = c.GetString("net", "ip")
+	db_opt.Addr, err = c.GetString("net", "addr")
 	if err != nil {
 		return db_opt, log_opt, err
 	}
 
-	db_opt.Register, err = c.GetString("net", "register")
+	db_opt.RegAddr, err = c.GetString("net", "regAddr")
 	if err != nil {
 		return db_opt, log_opt, err
 	}

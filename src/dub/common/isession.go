@@ -14,6 +14,8 @@ type ISession interface {
 	Close(CloseType)
 	// 标示ID
 	ID() uint64
+	//session的连接状态
+	ConnState() bool
 	//获取注册服务ip地址
 	GetRemoteAddr() string
 	//设置session数据

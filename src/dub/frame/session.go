@@ -22,6 +22,7 @@ type Session struct {
 	needStopWrite bool                   //是否需要主动断开协程
 	isDone        bool                   //是否已经关闭
 	sendList      *PacketList            //将发包改为发送列表
+	deadTime      time.Time              //超时时间
 	data          map[string]interface{} //session中存的数据
 }
 
@@ -55,7 +56,7 @@ func (this *Session) GetRemoteAddr() string {
 	return ipstring
 }
 func (this *Session) SetSessionData(key string, val interface{}) {
-	if val != nil&len(key) > 0 {
+	if val != nil && len(key) > 0 {
 		this.data[key] = val
 	}
 }
@@ -76,7 +77,13 @@ func (this *Session) DelSessionData(key string) {
 		}
 	}
 }
-
+func (this *Session) ConnState() bool {
+	//判断当前时间是否超过断开时间则表示死亡
+	if this.deadTime.Before(time.Now()) {
+		this.isDone = false
+	}
+	return this.isDone
+}
 func (this *Session) existThread() {
 	// 等待2个任务结束
 	this.endSync.Wait()
@@ -96,7 +103,8 @@ func (this *Session) recvThread() {
 
 		//判断是否为心跳检测包
 		if pk.MainId == NetPacketMainID && pk.SubId == NetPacketHeatBateSubID {
-			self.conn.SetDeadline(time.Now().Add(time.Duration(SessionDeadSecond) * time.Second))
+			this.deadTime = time.Now().Add(time.Duration(SessionDeadSecond) * time.Second)
+			this.conn.SetDeadline(this.deadTime)
 			this.Send(NetPacketMainID, NetPacketHeatBateSubID, nil)
 		} else {
 			if this.CallBack != nil {
@@ -157,7 +165,8 @@ func NewSession(sockid uint64, tcpConn net.Conn) *Session {
 		sendList:      NewPacketList(),
 	}
 	//设置超时时间
-	self.conn.SetDeadline(time.Now().Add(time.Duration(SessionDeadSecond) * time.Second))
+	self.deadTime = time.Now().Add(time.Duration(SessionDeadSecond) * time.Second)
+	self.conn.SetDeadline(self.deadTime)
 	self.stream = NewPacketStream(self.conn)
 	self.endSync.Add(2)
 
