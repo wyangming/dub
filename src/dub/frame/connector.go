@@ -1,10 +1,10 @@
 package frame
 
 import (
+	"errors"
 	"net"
 	"sync"
 	"time"
-	"errors"
 )
 
 const (
@@ -66,7 +66,7 @@ func (s *SocketConnector) sendThread() {
 	}
 
 exist_loop:
-// 关闭socket,触发读错误, 结束读循环
+	// 关闭socket,触发读错误, 结束读循环
 	s.stream.Close()
 	// 通知接收线程ok
 	s.endSync.Done()

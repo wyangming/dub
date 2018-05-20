@@ -2,11 +2,12 @@ package define
 
 //命令定义
 const (
-	Command_Reg = iota //注册服务器命令
+	CmdRegServer_Register = 1 //注册服务器的注册主命令
 )
 
 //注册服务器子命令
 const (
-	CommandSub_Reg_Net        = iota //心跳包命令
-	CommandSub_Reg_ServerType        //服务器类型命令
+	CmdSubRegServer_Register_Shut       = 0 //断开连接或者关闭服务命令
+	CmdSubRegServer_Register_Reg        = 1 //向服务器注册命令
+	CmdSubRegServer_Register_Reg_Inform = 2 //通知所需要的服务器上线
 )

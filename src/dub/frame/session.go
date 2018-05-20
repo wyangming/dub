@@ -16,7 +16,7 @@ type Session struct {
 	sockid        uint64
 	conn          net.Conn
 	OnClose       func(common.ISession)
-	CallBack      func(uint16, uint16, []byte, common.ISession) //接收到包后的处理函数
+	CallBack      func(uint16, uint16, []byte, common.ISession) bool //接收到包后的处理函数
 	stream        PacketStream
 	endSync       sync.WaitGroup
 	needStopWrite bool                   //是否需要主动断开协程
@@ -80,7 +80,7 @@ func (this *Session) DelSessionData(key string) {
 func (this *Session) ConnState() bool {
 	//判断当前时间是否超过断开时间则表示死亡
 	if this.deadTime.Before(time.Now()) {
-		this.isDone = false
+		this.isDone = true
 	}
 	return this.isDone
 }

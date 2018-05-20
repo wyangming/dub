@@ -2,13 +2,13 @@ package db
 
 import (
 	"dub/common"
-	"fmt"
 	"dub/config"
 	"dub/define"
-	"dub/utils"
-	"os"
 	"dub/frame"
+	"dub/utils"
+	"fmt"
 	json "github.com/json-iterator/go"
+	"os"
 )
 
 type DbServer struct {
@@ -30,7 +30,7 @@ func (d *DbServer) Init(cfgPath string) {
 	//日志信息
 	log := utils.NewLogger()
 	log.SetConfig(d.logCfg)
-	d.log=log
+	d.log = log
 
 	//连接注册服务器
 	conn := frame.NewConnector()
@@ -53,21 +53,21 @@ func (d *DbServer) Init(cfgPath string) {
 //向注册服务器发注册命令
 func (d *DbServer) reg() {
 	//如果有问题重新发送命令
-	for{
+	for {
 		serverInfo := &define.ModelRegReqServerType{
 			Addr:       d.dbCfg.Addr,
 			ServerName: "dbServer",
 		}
-		data,err:=json.Marshal(serverInfo)
-		if err!=nil {
-			d.log.Errorf("server.go reg method json.Marshal(serverInfo) err %v\n",err)
+		data, err := json.Marshal(serverInfo)
+		if err != nil {
+			d.log.Errorf("server.go reg method json.Marshal(serverInfo) err %v\n", err)
 			continue
 		}
 
 		//发送注册命令
-		err=d.regConn.Send(define.Command_Reg, define.CommandSub_Reg_ServerType, data)
-		if err!=nil {
-			d.log.Errorf("server.go reg method d.regConn.Send(define.Command_Reg, define.CommandSub_Reg_ServerType, data) err %v\n",err)
+		err = d.regConn.Send(define.CmdRegServer_Register, define.CmdSubRegServer_Register_Reg, data)
+		if err != nil {
+			d.log.Errorf("server.go reg method d.regConn.Send(define.CmdRegServer_Register %d, define.CmdSubRegServer_Register_Reg %d, data) err %v\n", define.CmdRegServer_Register, define.CmdSubRegServer_Register_Reg, err)
 			continue
 		}
 		break
