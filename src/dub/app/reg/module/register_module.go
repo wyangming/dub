@@ -66,6 +66,7 @@ func (r *RegisterModule) registerServer(data []byte, ses common.ISession) bool {
 	//添加服务器
 	r.serverSession[ses.ID()] = ses
 	r.servers[ses.ID()] = req
+	r.log.Infof("the server %+v on the line\n", *req)
 
 	//给自己发需要的服务器
 	if len(toHimServer) > 0 {
@@ -127,6 +128,8 @@ func (r *RegisterModule) relationServer(req *define.ModelRegReqServerType) ([]*d
 //实例化注册模块
 func NewRegistModule() common.IMoudle {
 	return &RegisterModule{
-		log: utils.NewLogger(),
+		servers:       make(map[uint64]*define.ModelRegReqServerType),
+		serverSession: make(map[uint64]common.ISession),
+		log:           utils.NewLogger(),
 	}
 }

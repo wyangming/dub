@@ -1,2 +1,2 @@
-[INFO] 2018/05/19 16:31:40 reg_server start
-[INFO] 2018/05/19 16:31:40 用户发送 0 主命令，1子命令，内容是{"Addr":":7020","ProtocolType":0,"ServerType":0,"ServerName":"dbServer"}
+[INFO] 2018/05/21 14:19:43 register server load register module success.
+[INFO] 2018/05/21 14:19:43 the server {Addr::7020 ProtocolType:0 ServerType:0 ServerName:dbServer} on the line

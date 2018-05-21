@@ -50,8 +50,8 @@ func (l *ListenerTcp) clearSession() {
 		l.mutex.Unlock()
 
 		for _, ses := range deadSesVec {
-			if ses.OnShutdown != nil {
-				ses.OnShutdown(ses)
+			if l.OnShutdown!=nil {
+				l.OnShutdown(ses)
 			}
 			if ses.OnClose != nil {
 				ses.OnClose(ses)

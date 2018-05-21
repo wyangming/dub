@@ -47,6 +47,8 @@ func (d *DbServer) Init(cfgPath string) {
 	dbProxy := NewDbProxy()
 	dbProxy.Init(&d.dbCfg)
 
+	//加载rpc服务
+
 	log.Infoln("db_server start")
 }
 
@@ -76,7 +78,22 @@ func (d *DbServer) reg() {
 
 //
 func (d *DbServer) connCallBack(mainId, subId uint16, data []byte) bool {
-	return false
+	if mainId == 1 && subId == 1 {
+		res := &define.ModelRegResServerType{}
+		err := json.Unmarshal(data, res)
+		if err != nil {
+			d.log.Errorf("server.go connCallBack(%d, %d, data []byte) json.Unmarshal(data,res) err %v\n", mainId, subId, err)
+			return true
+		}
+
+		if res.Err == 0 {
+			d.log.Infoln("db server reg success")
+		} else {
+			d.log.Infoln("db server reg fail")
+		}
+	}
+
+	return true
 }
 
 var dbServer *DbServer

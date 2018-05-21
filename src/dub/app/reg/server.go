@@ -32,19 +32,21 @@ func (r *RegServer) Init(cfgPath string) {
 	log.SetConfig(r.logCfg)
 	r.log = log
 
-	log.Infoln("reg_server start")
 	r.ln = frame.NewListener(r.regCfg.Addr)
 	r.ln.CallBack = r.lCallBack
 	r.ln.OnShutdown = r.lnConnShutDown
+
+	//添加模块
+	r.modules = make(map[uint16]common.IMoudle)
+	r.modules[define.CmdRegServer_Register] = module.NewRegistModule()
+	r.log.Infof("register server load register module success.\n")
+
 	err = r.ln.Start()
 	if err != nil {
 		log.Errorf("service.go Init method frame.NewListener(r.regCfg.Addr) err. %v\n", err)
 		os.Exit(2)
 	}
-
-	//添加模块
-	r.modules[define.CmdRegServer_Register] = module.NewRegistModule()
-	r.log.Infof("register server load register module success.\n")
+	log.Infoln("reg_server start")
 }
 
 //当监听关闭连接时的事件
