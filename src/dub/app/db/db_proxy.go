@@ -2,8 +2,8 @@ package db
 
 import (
 	"database/sql"
-	"dub/utils"
 	"dub/define"
+	"dub/utils"
 )
 
 const (
@@ -20,6 +20,15 @@ func (d *DbProxy) Init(cfg *define.DatabaseServerConfig) error {
 	d.log.Infof("db_server %s db_server start ...\n", cfg.Addr)
 
 	d.dbMap = make(map[int]*sql.DB)
+	return nil
+}
+
+//得到一个数据库代理
+func (d *DbProxy) Get(dbtype int) *sql.DB {
+	sqlDb, ok := d.dbMap[dbtype]
+	if ok {
+		return sqlDb
+	}
 	return nil
 }
 
