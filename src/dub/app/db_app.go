@@ -3,7 +3,6 @@ package main
 import (
 	"dub/app/db"
 	"flag"
-	"sync"
 )
 
 func main() {
@@ -12,8 +11,4 @@ func main() {
 
 	dbServer := db.NewDbServer()
 	dbServer.Init(*config_path)
-
-	waite := &sync.WaitGroup{}
-	waite.Add(1)
-	waite.Wait()
 }

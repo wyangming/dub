@@ -9,6 +9,10 @@ import (
 	"fmt"
 	json "github.com/json-iterator/go"
 	"os"
+	"dub/app/db/dbrpc"
+	"net/rpc"
+	"net"
+	"net/http"
 )
 
 type DbServer struct {
@@ -34,26 +38,36 @@ func (d *DbServer) Init(cfgPath string) {
 
 	//连接注册服务器
 	conn := frame.NewConnector()
-	conn.CallBack = d.connCallBack
+	conn.CallBack = d.RegServiceCallBack
 	d.regConn = conn
 	err = d.regConn.Start(d.dbCfg.RegAddr)
 	if err != nil {
-		d.log.Errorf("server.go reg method d.regConn.Start(d.dbCfg.Register) err %v\n", err)
+		d.log.Errorf("server.go Init method d.regConn.Start err %v\n", err)
 		os.Exit(2)
 	}
-	d.reg()
+	d.Reg()
 
 	//数据库代理
-	dbProxy := NewDbProxy()
+	dbProxy := dbrpc.NewDbProxy()
 	dbProxy.Init(&d.dbCfg)
 
 	//加载rpc服务
+	useRpc := dbrpc.NewUserRpc()
+	rpc.Register(useRpc)
+
+	rpc.HandleHTTP()
+	l, err := net.Listen("tcp", d.dbCfg.Addr)
+	if err != nil {
+		d.log.Errorf("rpc listen error:%v", err)
+		os.Exit(2)
+	}
+	http.Serve(l, nil)
 
 	log.Infoln("db_server start")
 }
 
 //向注册服务器发注册命令
-func (d *DbServer) reg() {
+func (d *DbServer) Reg() {
 	//如果有问题重新发送命令
 	for {
 		serverInfo := &define.ModelRegReqServerType{
@@ -66,6 +80,8 @@ func (d *DbServer) reg() {
 			continue
 		}
 
+		d.log.Infoln("send comand reg server reg")
+
 		//发送注册命令
 		err = d.regConn.Send(define.CmdRegServer_Register, define.CmdSubRegServer_Register_Reg, data)
 		if err != nil {
@@ -76,13 +92,13 @@ func (d *DbServer) reg() {
 	}
 }
 
-//
-func (d *DbServer) connCallBack(mainId, subId uint16, data []byte) bool {
+//注册服务器回调函数
+func (d *DbServer) RegServiceCallBack(mainId, subId uint16, data []byte) bool {
 	if mainId == 1 && subId == 1 {
 		res := &define.ModelRegResServerType{}
 		err := json.Unmarshal(data, res)
 		if err != nil {
-			d.log.Errorf("server.go connCallBack(%d, %d, data []byte) json.Unmarshal(data,res) err %v\n", mainId, subId, err)
+			d.log.Errorf("server.go RegServiceCallBack(%d, %d, data []byte) json.Unmarshal(data,res) err %v\n", mainId, subId, err)
 			return true
 		}
 

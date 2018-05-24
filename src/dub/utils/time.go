@@ -1,5 +1,9 @@
 package utils
 
+import (
+	"time"
+	"fmt"
+)
 //字符串转化为时间，必须是2006-01-02 15:04:05.999999格式
 func TimeStrtoTime(str string) (t time.Time, err error) {
 	timeFormat := "2006-01-02 15:04:05.999999"

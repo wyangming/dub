@@ -1,16 +1,45 @@
 package main
 
 import (
-	"bufio"
-	"database/sql"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"io"
 	"os"
+	"fmt"
+	"bufio"
+	"io"
 	"strings"
+	"database/sql"
+	"net/rpc"
+	"net/http"
 )
 
+type Pxy struct {
+}
+
+func (p *Pxy) ServeHTTP(rw http.ResponseWriter, re *http.Request) {
+	fmt.Println(re.URL.Path)
+
+}
+
 func main() {
+	http.ListenAndServe(":81", &Pxy{})
+}
+
+func rpcDemo() {
+	client, err := rpc.DialHTTP("tcp", ":7020")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("aaa")
+	args := "dubing"
+	var reply string
+	err = client.Call("UserRpc.FirstName", &args, &reply)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(reply)
+}
+
+func addRegion() {
 	f, err := os.Open("xzgh.txt")
 	if err != nil {
 		fmt.Println(err)

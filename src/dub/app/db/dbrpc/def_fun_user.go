@@ -1,8 +1,7 @@
-package rpc
+package dbrpc
 
 import (
 	"database/sql"
-	"dub/app/db"
 	"dub/define"
 	"dub/utils"
 )
@@ -13,7 +12,7 @@ type UserRpc struct {
 }
 
 func (u *UserRpc) FindByName(loginName *string, reply *define.RpcDbUserResFindByName) error {
-	dbAccounts := db.NewDbProxy().Get(db.DB_Accounts)
+	dbAccounts := NewDbProxy().Get(DB_Accounts)
 	row := dbAccounts.QueryRow("select userId,userName,loginName,loginPwd,userStatus,userAddTime,userAddId from dubuser where loginName=? limit 1", *loginName)
 
 	var (
@@ -21,7 +20,7 @@ func (u *UserRpc) FindByName(loginName *string, reply *define.RpcDbUserResFindBy
 		userStatus                                    uint8
 		UserName, rowloginName, loginPwd, userAddTime string
 	)
-	err := row.Scan(&userId, &rowUserName, &rowloginName, &loginPwd, &userStatus, &userAddTime, &userAddId)
+	err := row.Scan(&userId, &rowloginName, &rowloginName, &loginPwd, &userStatus, &userAddTime, &userAddId)
 
 	switch {
 	case err == sql.ErrNoRows:
@@ -29,7 +28,7 @@ func (u *UserRpc) FindByName(loginName *string, reply *define.RpcDbUserResFindBy
 	case err != nil:
 		u.log.Errorf("def_fun_user.go FindByName method row.Scan err. \n", err)
 	default:
-		reply.UserId = userAddTime
+		reply.UserId = userId
 		reply.UserAddId = userAddId
 		reply.UserStatus = userStatus
 		reply.UserName = UserName

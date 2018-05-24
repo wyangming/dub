@@ -4,7 +4,67 @@ import (
 	"dub/define"
 )
 
-//得到注册服务器与其他日志的配置
+//得到web用户中心
+func GetWebUserCenterServerConfig(path string)(define.WebUserCenterServerConfig,define.LogConfig,error){
+	var(
+		wuc_opt define.WebUserCenterServerConfig
+		log_opt define.LogConfig
+	)
+
+	c,err:=ReadConfigFile(path)
+	if err!=nil {
+		return wuc_opt, log_opt, err
+	}
+
+	wuc_opt.Addr, err = c.GetString("net", "addr")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+
+	wuc_opt.RegAddr, err = c.GetString("net", "regAddr")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+
+	err = fullLog(c, &log_opt)
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+
+	return wuc_opt, log_opt, nil
+}
+
+//得到用户中心与其日志配置
+func GetServiceUseServerConfig(path string)(define.ServiceUseServerConfig,define.LogConfig,error){
+	var(
+		use_opt define.ServiceUseServerConfig
+		log_opt define.LogConfig
+	)
+
+	c,err:=ReadConfigFile(path)
+	if err!=nil {
+		return use_opt, log_opt, err
+	}
+
+	use_opt.Addr, err = c.GetString("net", "addr")
+	if err != nil {
+		return use_opt, log_opt, err
+	}
+
+	use_opt.RegAddr, err = c.GetString("net", "regAddr")
+	if err != nil {
+		return use_opt, log_opt, err
+	}
+
+	err = fullLog(c, &log_opt)
+	if err != nil {
+		return use_opt, log_opt, err
+	}
+
+	return use_opt, log_opt, nil
+}
+
+//得到注册服务器与其日志的配置
 func GetRegisterServerConfig(path string) (define.RegisterServerConfig, define.LogConfig, error) {
 	var (
 		reg_opt define.RegisterServerConfig

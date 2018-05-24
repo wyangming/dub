@@ -66,7 +66,6 @@ func (r *RegisterModule) registerServer(data []byte, ses common.ISession) bool {
 	//添加服务器
 	r.serverSession[ses.ID()] = ses
 	r.servers[ses.ID()] = req
-	r.log.Infof("the server %+v on the line\n", *req)
 
 	//给自己发需要的服务器
 	if len(toHimServer) > 0 {
@@ -92,6 +91,11 @@ func (r *RegisterModule) relationServer(req *define.ModelRegReqServerType) ([]*d
 		toHimServer []*define.ModelRegReqServerType //此服务器上线后需要那些服务器支持
 		himToServer []common.ISession               //此服务器上线后要通知那些服务器
 	)
+
+	if len(r.servers) < 1 {
+		return toHimServer, himToServer
+	}
+
 	for key, server := range r.servers {
 		switch req.ServerType {
 		case 0: //数据服务
@@ -102,6 +106,7 @@ func (r *RegisterModule) relationServer(req *define.ModelRegReqServerType) ([]*d
 		case 1: //逻辑服务
 			//所有数据服务通知给此服务器，再把此服务器通知给应用服
 			if server.ServerType == 0 {
+				r.log.Infoln("req server 1 add server 0")
 				toHimServer = append(toHimServer, server)
 			}
 			if server.ServerType == 2 {
