@@ -1,10 +1,14 @@
 package main
 
-import "flag"
+import (
+	"flag"
+	"dub/app/web/usecenter"
+)
 
-func main()  {
-	//beego.Run(":81")
-	config_path := flag.String("Config", "./config/web/use_center.cfg", "config file path!")
+func main() {
+	config_path := flag.String("Config", "./config/web/web_center_use.cfg", "config file path!")
 	flag.Parse()
-	println(config_path)
+
+	webUseCenter := usecenter.NewWebUseCenterServer()
+	webUseCenter.Init(*config_path)
 }

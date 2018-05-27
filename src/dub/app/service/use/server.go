@@ -42,36 +42,37 @@ func (s *ServiceUseServer) Init(cfgPath string) {
 	conn := frame.NewConnector()
 	conn.CallBack = s.RegServiceCallBack
 	s.regConn = conn
-	s.log.Infof("reg server is %s", s.useCfg.RegAddr)
 	err = s.regConn.Start(s.useCfg.RegAddr)
 	if err != nil {
 		s.log.Errorf("server.go Init method s.regConn.Start err %v\n", err)
 		os.Exit(2)
 	}
 	s.Reg()
+	log.Infof("reg %s server is %s", s.logCfg.DeviceName, s.useCfg.Addr)
 
 	//加载自己的rpc服务
-	secRpc:=secrpc.NewSecRpc(s.log,s.dbRpc)
+	secRpc := secrpc.NewSecRpc(s.log, s.dbRpc)
 	rpc.Register(secRpc)
 
 	rpc.HandleHTTP()
-	l,err:=net.Listen("tcp",s.useCfg.Addr)
+	l, err := net.Listen("tcp", s.useCfg.Addr)
 	if err != nil {
-		s.log.Errorf("rpc listen err:%v\n",err)
+		s.log.Errorf("rpc listen err:%v\n", err)
 		os.Exit(2)
 	}
-	http.Serve(l,nil)
+	http.Serve(l, nil)
 	s.log.Infoln("service useService server start")
 }
 
 func (s *ServiceUseServer) Reg() {
+	serverInfo := &define.ModelRegReqServerType{
+		Addr:       s.useCfg.Addr,
+		ServerName: define.ServerNameService_UseServer,
+		ServerType: 1,
+	}
+
 	//如果有问题重新发送命令
 	for {
-		serverInfo := &define.ModelRegReqServerType{
-			Addr:       s.useCfg.Addr,
-			ServerName: "serviceUseServer",
-			ServerType: 1,
-		}
 		data, err := json.Marshal(serverInfo)
 		if err != nil {
 			s.log.Errorf("server.go reg method json.Marshal(serverInfo) err %v\n", err)
@@ -93,7 +94,7 @@ func (s *ServiceUseServer) RegServiceCallBack(mainId, subId uint16, data []byte)
 	if mainId == define.CmdRegServer_Register {
 		switch subId {
 		case define.CmdSubRegServer_Register_Reg_Inform:
-			//与下层服务器上线
+			//下层服务器上线
 			res := &define.ModelRegReqServerType{}
 			err := json.Unmarshal(data, res)
 			if err != nil {
@@ -101,15 +102,13 @@ func (s *ServiceUseServer) RegServiceCallBack(mainId, subId uint16, data []byte)
 				return true
 			}
 
-			s.log.Infof("reg server back Info is %+v", res)
-
 			//判断是否是数据服务
 			if res.ServerType == 0 {
 				protocol := "tcp"
 				s.dbRpc = utils.NewRpcProxy(protocol, res.Addr)
 				err := s.dbRpc.Start()
 				if err != nil {
-					s.log.Errorf("server.go s.dbRpc.Start()  err %v\n", err)
+					s.log.Errorf("server.go RegServiceCallBack method  s.dbRpc.Start method err %v\n", err)
 					return true
 				}
 				s.log.Infof("link %s server rpc.\n", res.ServerName)

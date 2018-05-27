@@ -2,8 +2,8 @@ package define
 
 //dbserver
 type DatabaseServerConfig struct {
-	Addr string //绑定的ip地址及端口
-	RegAddr string//注册服务器
+	Addr    string //绑定的ip地址及端口
+	RegAddr string //注册服务器
 }
 
 //日志
@@ -20,12 +20,23 @@ type RegisterServerConfig struct {
 
 //用户服务
 type ServiceUseServerConfig struct {
-	Addr string //绑定的ip地址及端口
-	RegAddr string//注册服务器
+	Addr    string //绑定的ip地址及端口
+	RegAddr string //注册服务器
 }
 
 //用户中心
 type WebUserCenterServerConfig struct {
-	Addr string //绑定的ip地址及端口
-	RegAddr string//注册服务器
+	Addr          string //web服务的ip地址及端口
+	WebWiew       string //web页面的路径地址
+	WebStaticPath string //web页面路径的静态地址
+	WebStaticUrl  string //web页面的静态url
+	RunMode       string //运行模式
+
+	RegAddr string //注册服务器
+}
+
+//注册服务器
+type GateWebServerConfig struct {
+	Addr    string //绑定的ip地址及端口
+	RegAddr string //注册服务器
 }

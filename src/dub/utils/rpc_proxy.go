@@ -5,7 +5,6 @@ import (
 	"sync"
 	"errors"
 	"time"
-	"fmt"
 )
 
 //rpc代理
@@ -64,7 +63,6 @@ func (r *RpcProxy) Status() bool {
 }
 
 func (r *RpcProxy) Start() error {
-	fmt.Println(r)
 	client, err := rpc.DialHTTP(r.net, r.address)
 	if err == nil {
 		r.client = client

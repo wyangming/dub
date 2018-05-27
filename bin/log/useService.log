@@ -1,7 +1,0 @@
-[INFO] 2018/05/23 22:54:06 reg server is :7016
-[INFO] 2018/05/23 22:54:06 service use server reg success
-[INFO] 2018/05/23 22:54:06 reg server back Info is &{Addr::7020 ProtocolType:0 ServerType:0 ServerName:dbServer}
-[INFO] 2018/05/23 22:54:06 &{Addr::7020 ProtocolType:0 ServerType:0 ServerName:dbServer} server online.
-[INFO] 2018/05/23 22:54:06 db rpc info is &{net:tcp address::7020 client:<nil> mutex:{w:{state:0 sema:0} writerSem:0 readerSem:0 readerCount:0 readerWait:0} iskeep:false}
-[INFO] 2018/05/23 22:54:06 link dbServer server rpc.
-[INFO] 2018/05/23 22:54:06 test dbrpc result is dubing-.

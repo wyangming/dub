@@ -4,15 +4,44 @@ import (
 	"dub/define"
 )
 
-//得到web用户中心
-func GetWebUserCenterServerConfig(path string)(define.WebUserCenterServerConfig,define.LogConfig,error){
+//得到web的网关服务
+func GetGateWebServerConfig(path string)(define.GateWebServerConfig,define.LogConfig,error){
 	var(
+		gus_opt define.GateWebServerConfig
+		log_opt define.LogConfig
+	)
+	c, err := ReadConfigFile(path)
+	if err != nil {
+		return gus_opt, log_opt, err
+	}
+
+	gus_opt.Addr, err = c.GetString("net", "addr")
+	if err != nil {
+		return gus_opt, log_opt, err
+	}
+
+	gus_opt.RegAddr, err = c.GetString("net", "regAddr")
+	if err != nil {
+		return gus_opt, log_opt, err
+	}
+
+	err = fullLog(c, &log_opt)
+	if err != nil {
+		return gus_opt, log_opt, err
+	}
+
+	return gus_opt, log_opt, nil
+}
+
+//得到web用户中心
+func GetWebUserCenterServerConfig(path string) (define.WebUserCenterServerConfig, define.LogConfig, error) {
+	var (
 		wuc_opt define.WebUserCenterServerConfig
 		log_opt define.LogConfig
 	)
 
-	c,err:=ReadConfigFile(path)
-	if err!=nil {
+	c, err := ReadConfigFile(path)
+	if err != nil {
 		return wuc_opt, log_opt, err
 	}
 
@@ -20,8 +49,19 @@ func GetWebUserCenterServerConfig(path string)(define.WebUserCenterServerConfig,
 	if err != nil {
 		return wuc_opt, log_opt, err
 	}
-
 	wuc_opt.RegAddr, err = c.GetString("net", "regAddr")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+	wuc_opt.WebWiew, err = c.GetString("web", "webView")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+	wuc_opt.WebStaticPath, err = c.GetString("web", "webStaticUrl")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+	wuc_opt.RunMode, err = c.GetString("web", "runMode")
 	if err != nil {
 		return wuc_opt, log_opt, err
 	}
@@ -35,14 +75,14 @@ func GetWebUserCenterServerConfig(path string)(define.WebUserCenterServerConfig,
 }
 
 //得到用户中心与其日志配置
-func GetServiceUseServerConfig(path string)(define.ServiceUseServerConfig,define.LogConfig,error){
-	var(
+func GetServiceUseServerConfig(path string) (define.ServiceUseServerConfig, define.LogConfig, error) {
+	var (
 		use_opt define.ServiceUseServerConfig
 		log_opt define.LogConfig
 	)
 
-	c,err:=ReadConfigFile(path)
-	if err!=nil {
+	c, err := ReadConfigFile(path)
+	if err != nil {
 		return use_opt, log_opt, err
 	}
 

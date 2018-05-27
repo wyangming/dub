@@ -1,0 +1,21 @@
+[INFO] 2018/05/27 13:24:30 reg useWebCenter server is :7022
+[INFO] 2018/05/27 13:24:30 config info is {Addr::7022 WebWiew:webrec/usecenter/view WebStaticPath:/rec WebStaticUrl: RegAddr::7016}
+[INFO] 2018/05/27 13:24:30 jieshou mainId 1 subId 1	
+[INFO] 2018/05/27 13:24:30 service use server reg success
+2018/05/27 13:24:30.936 [I] http server Running on http://:7022
+[INFO] 2018/05/27 13:24:31 jieshou mainId 1 subId 2	
+[INFO] 2018/05/27 13:24:31 Reg_Inform is &{Addr::7021 ProtocolType:0 ServerType:1 ServerName:Service_useServer}	
+[INFO] 2018/05/27 13:24:31 pre reply is pingguo
+[INFO] 2018/05/27 13:24:31 serviceUseRpc test result is dubing-
+[INFO] 2018/05/27 13:24:35 all ready Get method do.
+2018/05/27 13:24:35.059 [D] ::1 - - [27/May/2018 01:24:35] "GET / HTTP/1.1 200 0" 0.001001  Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36
+
+[INFO] 2018/05/27 13:24:35 all ready Get method do.
+2018/05/27 13:24:35.736 [D] ::1 - - [27/May/2018 01:24:35] "GET / HTTP/1.1 200 0" 0.001003  Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36
+
+[INFO] 2018/05/27 13:24:35 all ready Get method do.
+2018/05/27 13:24:36.000 [D] ::1 - - [27/May/2018 01:24:35] "GET / HTTP/1.1 200 0" 0.001001  Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36
+
+[INFO] 2018/05/27 13:24:36 all ready Get method do.
+2018/05/27 13:24:36.235 [D] ::1 - - [27/May/2018 01:24:36] "GET / HTTP/1.1 200 0" 0.003003  Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36
+

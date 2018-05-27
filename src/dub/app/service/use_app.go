@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	config_path := flag.String("Config", "./config/service/use_server.cfg", "config file path!")
+	config_path := flag.String("Config", "./config/service/service_use.cfg", "config file path!")
 	flag.Parse()
 
 	serviceUseServer := use.NewServiceUseServer()

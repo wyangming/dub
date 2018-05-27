@@ -46,6 +46,7 @@ func (d *DbServer) Init(cfgPath string) {
 		os.Exit(2)
 	}
 	d.Reg()
+	log.Infof("reg %s server is %s", d.logCfg.DeviceName, d.dbCfg.Addr)
 
 	//数据库代理
 	dbProxy := dbrpc.NewDbProxy()
@@ -69,11 +70,12 @@ func (d *DbServer) Init(cfgPath string) {
 //向注册服务器发注册命令
 func (d *DbServer) Reg() {
 	//如果有问题重新发送命令
+	serverInfo := &define.ModelRegReqServerType{
+		Addr:       d.dbCfg.Addr,
+		ServerName: define.ServerNameDB_DbServer,
+	}
+
 	for {
-		serverInfo := &define.ModelRegReqServerType{
-			Addr:       d.dbCfg.Addr,
-			ServerName: "dbServer",
-		}
 		data, err := json.Marshal(serverInfo)
 		if err != nil {
 			d.log.Errorf("server.go reg method json.Marshal(serverInfo) err %v\n", err)

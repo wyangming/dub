@@ -1,3 +1,7 @@
+"">./log/webCenterUse.log
+
+"">./log/serviceUse.log
+
 "">./log/db.log
-"">./log/useService.log
+
 "">./log/reg.log
