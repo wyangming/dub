@@ -5,8 +5,8 @@ import (
 )
 
 //得到web的网关服务
-func GetGateWebServerConfig(path string)(define.GateWebServerConfig,define.LogConfig,error){
-	var(
+func GetGateWebServerConfig(path string) (define.GateWebServerConfig, define.LogConfig, error) {
+	var (
 		gus_opt define.GateWebServerConfig
 		log_opt define.LogConfig
 	)
@@ -54,6 +54,10 @@ func GetWebUserCenterServerConfig(path string) (define.WebUserCenterServerConfig
 		return wuc_opt, log_opt, err
 	}
 	wuc_opt.WebWiew, err = c.GetString("web", "webView")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+	wuc_opt.ProxyUrl, err = c.GetString("web", "proxyUrl")
 	if err != nil {
 		return wuc_opt, log_opt, err
 	}

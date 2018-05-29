@@ -32,7 +32,8 @@ type WebUserCenterServerConfig struct {
 	WebStaticUrl  string //web页面的静态url
 	RunMode       string //运行模式
 
-	RegAddr string //注册服务器
+	ProxyUrl string //被gate代理的url
+	RegAddr  string //注册服务器
 }
 
 //注册服务器

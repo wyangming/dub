@@ -56,6 +56,7 @@ func (w *WebUseCenterServer) Init(cfgPath string) {
 	beego.BConfig.WebConfig.ViewsPath = w.wucCfg.WebWiew
 	beego.BConfig.RunMode = w.wucCfg.RunMode
 
+	//日志设定
 	beego.SetLogger("file", fmt.Sprintf(`{"filename":"./log/%s.log"}`, w.logCfg.DeviceName))
 	//路由设定
 	RouteAdd()
@@ -69,6 +70,7 @@ func (w *WebUseCenterServer) Reg() {
 		Addr:       w.wucCfg.Addr,
 		ServerName: define.ServerNameWeb_UseCenterServer,
 		ServerType: 2,
+		ProxyUrl:   w.wucCfg.ProxyUrl,
 	}
 
 	for {

@@ -9,14 +9,18 @@ import (
 	"os"
 	"dub/frame"
 	json "github.com/json-iterator/go"
+	"net/http"
+	"net/url"
+	"strings"
+	"net/http/httputil"
 )
 
 type GateWebServer struct {
-	gwsCfg   define.GateWebServerConfig //web网关服务配置
-	logCfg   define.LogConfig           //日志配置
-	regConn  common.IConnector          //与注册服务器连接
-	log      *utils.Logger              //日志对象
-	proxyUrl map[string]string          //代理的路径与服务器映射
+	gwsCfg    define.GateWebServerConfig //web网关服务配置
+	logCfg    define.LogConfig           //日志配置
+	regConn   common.IConnector          //与注册服务器连接
+	log       *utils.Logger              //日志对象
+	proxyUrls map[string]string          //代理的路径与服务器映射
 }
 
 func (g *GateWebServer) Init(cfgPath string) {
@@ -43,10 +47,56 @@ func (g *GateWebServer) Init(cfgPath string) {
 		os.Exit(2)
 	}
 	g.Reg()
-	log.Infof("reg %s server is %s", g.logCfg.DeviceName, g.gwsCfg.Addr)
+	log.Infof("reg %s server is %s\n", g.logCfg.DeviceName, g.gwsCfg.Addr)
 
-	g.proxyUrl = make(map[string]string)
-	//TODO:自己应有的业务
+	g.proxyUrls = make(map[string]string)
+	//启动代理服务器
+	g.StartProxy()
+}
+
+//启动代理服务器的方法
+func (g *GateWebServer) StartProxy() {
+	for {
+		if len(g.proxyUrls) < 1 {
+			continue
+		}
+
+		err := http.ListenAndServe(g.gwsCfg.Addr, g)
+		if err != nil {
+			g.log.Errorf("server.go Init method start web gate server err %v\n", err)
+		}
+		g.log.Infoln("web gate server start")
+	}
+}
+
+//实现代理的主要方法
+func (g *GateWebServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	proxy_url := "/"
+	proxy_server := g.proxyUrls[proxy_url]
+	for url_key, url_val := range g.proxyUrls {
+		if url_key != "/" && url_key[:len(url_key)] == url_key {
+			proxy_url = url_key
+			proxy_server = url_val
+			break
+		}
+	}
+
+	if len(strings.Split(proxy_server, ":")[0]) < 1 {
+		proxy_server = fmt.Sprintf("localhost%s", proxy_server)
+	}
+
+	newUrl, err := url.Parse(fmt.Sprintf("http://%s%s", proxy_server, strings.Replace(r.URL.Path, proxy_url, "", 1)))
+	if err != nil {
+		g.log.Errorf("server.go ServeHTTP method http proxy url.Parse err %v\n", err)
+		return
+	}
+	//req里设置被代理服务器的前置url
+	//设置web服务被代理的基础路径
+	//暂时思路是在代理的服务器上使用request的header里设置一个信息来作为一个被代理的路径
+	r.Header.Add(define.Gate_String_Web_Proxy, proxy_url)
+	r.URL = newUrl
+	proxy := httputil.NewSingleHostReverseProxy(newUrl)
+	proxy.ServeHTTP(w, r)
 }
 
 func (g *GateWebServer) Reg() {
@@ -75,6 +125,7 @@ func (g *GateWebServer) Reg() {
 
 //注册服务回调函数
 func (g *GateWebServer) RegServiceCallBack(mainId, subId uint16, data []byte) bool {
+	g.log.Infof("web gate server recve mainId %d subId %d\n", mainId, subId)
 	if mainId == define.CmdRegServer_Register {
 		switch subId {
 		case define.CmdSubRegServer_Register_Reg_Inform:
@@ -85,27 +136,19 @@ func (g *GateWebServer) RegServiceCallBack(mainId, subId uint16, data []byte) bo
 				g.log.Errorf("server.go RegServiceCallBack(%d, %d, data []byte) json.Unmarshal(data,res) err %v\n", mainId, subId, err)
 				return true
 			}
-			g.log.Infof("Reg_Inform is %+v	\n", res)
 
 			//判断是否是逻辑服务
 			//web网关接入web应用服务
 			if res.ServerType == 2 {
-				protocol := "tcp"
-				tmp_rpc := utils.NewRpcProxy(protocol, res.Addr)
-				err := tmp_rpc.Start()
-				if err != nil {
-					g.log.Errorf("server.go RegServiceCallBack method s.dbRpc.Start method err %v\n", err)
-					return true
-				}
-
 				//配置rpc服务
 				switch res.ServerName {
 				case define.ServerNameWeb_UseCenterServer:
 					if len(res.ProxyUrl) < 0 {
 						res.ProxyUrl = "/"
 					}
-					g.proxyUrl[res.ProxyUrl] = res.Addr
+					g.proxyUrls[res.ProxyUrl] = res.Addr
 				}
+				g.log.Infof("web service proxy url %s host %s\n", res.ProxyUrl, res.Addr)
 			}
 		case define.CmdSubRegServer_Register_Reg:
 			res := &define.ModelRegResServerType{}
@@ -116,9 +159,9 @@ func (g *GateWebServer) RegServiceCallBack(mainId, subId uint16, data []byte) bo
 			}
 
 			if res.Err == 0 {
-				g.log.Infoln("service use server reg success")
+				g.log.Infoln("service web gate server reg success")
 			} else {
-				g.log.Infoln("service use server reg fail")
+				g.log.Infoln("service web gate server reg fail")
 			}
 		}
 	}

@@ -62,22 +62,19 @@ func (r *RegisterModule) registerServer(data []byte, ses common.ISession) bool {
 	res.Err = 0
 	reData, _ := json.Marshal(res)
 	ses.Send(define.CmdRegServer_Register, define.CmdSubRegServer_Register_Reg, reData)
-
-	if req.ServerType == 2 {
-		r.log.Infoln("web server on line, server pre is ", r.servers)
-	}
+	r.mutex.Lock()
 
 	toHimServer, himToServer := r.relationServer(req)
 
 	//添加服务器
-	//r.mutex.Lock()
 	r.serverSession[ses.ID()] = ses
 	r.servers[ses.ID()] = req
-	//r.mutex.Unlock()
 
 	//给自己发需要的服务器
 	if len(toHimServer) > 0 {
+		r.log.Infoln("toHimServer > 0 gate server on line, server pre is ", req)
 		for i := 0; i < len(toHimServer); i++ {
+			r.log.Infoln("need server is ", toHimServer[i])
 			reData, _ := json.Marshal(toHimServer[i])
 			ses.Send(define.CmdRegServer_Register, define.CmdSubRegServer_Register_Reg_Inform, reData)
 		}
@@ -89,6 +86,7 @@ func (r *RegisterModule) registerServer(data []byte, ses common.ISession) bool {
 			himToServer[i].Send(define.CmdRegServer_Register, define.CmdSubRegServer_Register_Reg_Inform, data)
 		}
 	}
+	r.mutex.Unlock()
 
 	return true
 }
@@ -122,14 +120,13 @@ func (r *RegisterModule) relationServer(req *define.ModelRegReqServerType) ([]*d
 		case 2: //应用服务
 			//所有的逻辑服务通知给应用服务，再把应用服务通知给网关服务
 			if server.ServerType == 1 {
-				r.log.Infoln("logic to app server")
 				toHimServer = append(toHimServer, server)
 			}
 			if server.ServerType == 3 {
 				himToServer = append(himToServer, r.serverSession[key])
 			}
 		case 3: //网关服务
-			//把所有的应用服务器推送给网关服务
+			//把所有的web应用服务器推送给网关服务
 			if server.ServerType == 2 {
 				toHimServer = append(toHimServer, server)
 			}

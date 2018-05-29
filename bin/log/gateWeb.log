@@ -1,0 +1,10 @@
+[INFO] 2018/05/29 22:03:55 reg gateWeb server is :7023
+[INFO] 2018/05/29 22:03:55 web gate server recve mainId 1 subId 1
+[INFO] 2018/05/29 22:03:55 service web gate server reg success
+[INFO] 2018/05/29 22:03:55 web gate server recve mainId 1 subId 2
+[INFO] 2018/05/29 22:03:55 web service proxy url /use host :7022
+[INFO] 2018/05/29 22:05:00 reg gateWeb server is :7023
+[INFO] 2018/05/29 22:05:00 web gate server recve mainId 1 subId 1
+[INFO] 2018/05/29 22:05:00 service web gate server reg success
+[INFO] 2018/05/29 22:05:00 web gate server recve mainId 1 subId 2
+[INFO] 2018/05/29 22:05:00 web service proxy url /use host :7022

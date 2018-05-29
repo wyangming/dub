@@ -5,3 +5,5 @@
 "">./log/db.log
 
 "">./log/reg.log
+
+"">./log/gateWeb.log
