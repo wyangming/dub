@@ -1,4 +1,4 @@
-"">./log/webCenterUse.log
+"">./log/webCenterManLobby.log
 
 "">./log/serviceUse.log
 

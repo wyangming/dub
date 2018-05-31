@@ -4,17 +4,17 @@ package define
 
 //数据服务 type 0
 const (
-	ServerNameDB_DbServer = "db_dbServer"
+	ServerNameDB_DbServer = "db_DbServer"
 )
 
 //逻辑服务 type 1
 const (
-	ServerNameService_UseServer = "Service_useServer"
+	ServerNameService_UseServer = "Service_UseServer"
 )
 
 //web服务器 type 2
 const (
-	ServerNameWeb_UseCenterServer = "Web_UserCenterServer"
+	ServerNameWeb_ManLobbyServer = "Service_ManLobbyServer"
 )
 
 //网关服务器 type 3

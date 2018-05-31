@@ -61,7 +61,11 @@ func GetWebUserCenterServerConfig(path string) (define.WebUserCenterServerConfig
 	if err != nil {
 		return wuc_opt, log_opt, err
 	}
-	wuc_opt.WebStaticPath, err = c.GetString("web", "webStaticUrl")
+	wuc_opt.WebStaticUrl, err = c.GetString("web", "webStaticUrl")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+	wuc_opt.WebStaticPath, err = c.GetString("web", "webStaticPath")
 	if err != nil {
 		return wuc_opt, log_opt, err
 	}

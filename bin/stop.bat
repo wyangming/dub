@@ -1,6 +1,6 @@
 taskkill /f /t /im gateWeb.exe
 
-taskkill /f /t /im webUseCenter.exe
+taskkill /f /t /im manLobby.exe
 
 taskkill /f /t /im serviceUse.exe
 

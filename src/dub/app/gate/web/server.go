@@ -61,7 +61,9 @@ func (g *GateWebServer) StartProxy() {
 			continue
 		}
 
-		err := http.ListenAndServe(g.gwsCfg.Addr, g)
+		//第一种代理方案有问题
+		err := http.ListenAndServe(g.gwsCfg.Addr, g.reverseProxy())
+
 		if err != nil {
 			g.log.Errorf("server.go Init method start web gate server err %v\n", err)
 		}
@@ -69,34 +71,31 @@ func (g *GateWebServer) StartProxy() {
 	}
 }
 
-//实现代理的主要方法
-func (g *GateWebServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	proxy_url := "/"
-	proxy_server := g.proxyUrls[proxy_url]
-	for url_key, url_val := range g.proxyUrls {
-		if url_key != "/" && url_key[:len(url_key)] == url_key {
-			proxy_url = url_key
-			proxy_server = url_val
-			break
+//代理方案实现的方法
+func (g *GateWebServer) reverseProxy() *httputil.ReverseProxy {
+	director := func(req *http.Request) {
+		proxy_url := "/"
+		proxy_server := g.proxyUrls[proxy_url]
+		for url_key, url_val := range g.proxyUrls {
+			if url_key != "/" && url_key[:len(url_key)] == url_key {
+				proxy_url = url_key
+				proxy_server = url_val
+				break
+			}
 		}
-	}
 
-	if len(strings.Split(proxy_server, ":")[0]) < 1 {
-		proxy_server = fmt.Sprintf("localhost%s", proxy_server)
+		newUrl, err := url.Parse(fmt.Sprintf("http://%s%s", proxy_server, strings.Replace(req.URL.Path, proxy_url, "", 1)))
+		if err != nil {
+			g.log.Errorf("server.go ServeHTTP method http proxy url.Parse err %v\n", err)
+			return
+		}
+		//req里设置被代理服务器的前置url
+		//设置web服务被代理的基础路径
+		//暂时思路是在代理的服务器上使用request的header里设置一个信息来作为一个被代理的路径
+		req.Header.Add(define.Gate_String_Web_Proxy, proxy_url)
+		req.URL = newUrl
 	}
-
-	newUrl, err := url.Parse(fmt.Sprintf("http://%s%s", proxy_server, strings.Replace(r.URL.Path, proxy_url, "", 1)))
-	if err != nil {
-		g.log.Errorf("server.go ServeHTTP method http proxy url.Parse err %v\n", err)
-		return
-	}
-	//req里设置被代理服务器的前置url
-	//设置web服务被代理的基础路径
-	//暂时思路是在代理的服务器上使用request的header里设置一个信息来作为一个被代理的路径
-	r.Header.Add(define.Gate_String_Web_Proxy, proxy_url)
-	r.URL = newUrl
-	proxy := httputil.NewSingleHostReverseProxy(newUrl)
-	proxy.ServeHTTP(w, r)
+	return &httputil.ReverseProxy{Director: director}
 }
 
 func (g *GateWebServer) Reg() {
@@ -140,9 +139,9 @@ func (g *GateWebServer) RegServiceCallBack(mainId, subId uint16, data []byte) bo
 			//判断是否是逻辑服务
 			//web网关接入web应用服务
 			if res.ServerType == 2 {
-				//配置rpc服务
+				//配置相应的web微服务
 				switch res.ServerName {
-				case define.ServerNameWeb_UseCenterServer:
+				case define.ServerNameWeb_ManLobbyServer:
 					if len(res.ProxyUrl) < 0 {
 						res.ProxyUrl = "/"
 					}

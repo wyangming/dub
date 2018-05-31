@@ -4,8 +4,8 @@ go build -o ./serviceUse.exe ../src/dub/app/service/use_app.go
 
 ::web service
 ::useCenter
-xcopy "../src/dub/app/web/usecenter/view" "./webrec/usecenter/view" /y /d /s /e /r /f
-go build -o ./webUseCenter.exe ../src/dub/app/web/usecenter_app.go
+xcopy "../src/dub/app/web/manlobby/view" "./webrec/manlobby/view" /y /d /s /e /r /f
+go build -o ./manLobby.exe ../src/dub/app/web/man_lobby_app.go
 
 ::gate server
 go build -o ./gateWeb.exe ../src/dub/app/gate/web_app.go
