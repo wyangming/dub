@@ -52,6 +52,7 @@ func (w *WebManLobbyCenterServer) Init(cfgPath string) {
 	//beego.BConfig.WebConfig.StaticDir = map[string]string{w.wucCfg.WebStaticUrl: w.wucCfg.WebStaticPath}
 	beego.BConfig.WebConfig.ViewsPath = w.wucCfg.WebWiew
 	beego.SetStaticPath(w.wucCfg.WebStaticUrl, w.wucCfg.WebStaticPath)
+	beego.BConfig.WebConfig.Session.SessionOn = true
 
 	beego.BConfig.RunMode = w.wucCfg.RunMode
 

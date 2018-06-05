@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"dub/app/web/model"
+	"dub/app/web/manlobby/model"
 	"dub/define"
 	"dub/secrec"
 	"dub/utils"
@@ -81,7 +81,9 @@ func (m *ManDefaultController) Post() {
 	}
 
 	//权限信息放到前台
-	m.Data["Auths"] = *reply.Auths
+	//m.Data["Auths"] = *reply.Auths
+	fmt.Println(showConAuths)
+	fmt.Println(AllConAuths)
 
 	m.Data["result"] = true
 	m.Data["msg"] = "登录成功"
