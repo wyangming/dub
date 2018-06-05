@@ -1,18 +1,19 @@
 package use
 
 import (
-	"dub/define"
-	"dub/utils"
+	"dub/app/service/use/secrpc"
 	"dub/common"
 	"dub/config"
-	"fmt"
-	"os"
+	"dub/define"
 	"dub/frame"
-	json "github.com/json-iterator/go"
-	"dub/app/service/use/secrpc"
-	"net/rpc"
+	"dub/utils"
+	"fmt"
 	"net"
 	"net/http"
+	"net/rpc"
+	"os"
+
+	json "github.com/json-iterator/go"
 )
 
 type ServiceUseServer struct {
@@ -49,10 +50,6 @@ func (s *ServiceUseServer) Init(cfgPath string) {
 	}
 	s.Reg()
 	log.Infof("reg %s server is %s", s.logCfg.DeviceName, s.useCfg.Addr)
-
-	//加载自己的rpc服务
-	secRpc := secrpc.NewSecRpc(s.log, s.dbRpc)
-	rpc.Register(secRpc)
 
 	rpc.HandleHTTP()
 	l, err := net.Listen("tcp", s.useCfg.Addr)
@@ -113,6 +110,10 @@ func (s *ServiceUseServer) RegServiceCallBack(mainId, subId uint16, data []byte)
 				}
 				s.log.Infof("link %s server rpc.\n", res.ServerName)
 				s.dbRpcOnline = s.dbRpc.Status()
+
+				//加载自己的rpc服务
+				secUseRpc := secrpc.NewSecUseRpc(s.log, s.dbRpc)
+				rpc.Register(secUseRpc)
 			}
 		case define.CmdSubRegServer_Register_Reg:
 			res := &define.ModelRegResServerType{}

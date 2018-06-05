@@ -1,18 +1,21 @@
 package db
 
 import (
+	"dub/app/db/dbrpc"
 	"dub/common"
 	"dub/config"
 	"dub/define"
 	"dub/frame"
 	"dub/utils"
 	"fmt"
-	json "github.com/json-iterator/go"
-	"os"
-	"dub/app/db/dbrpc"
-	"net/rpc"
 	"net"
 	"net/http"
+	"net/rpc"
+	"os"
+
+	_ "github.com/go-sql-driver/mysql"
+
+	json "github.com/json-iterator/go"
 )
 
 type DbServer struct {
@@ -55,6 +58,12 @@ func (d *DbServer) Init(cfgPath string) {
 	//加载rpc服务
 	useRpc := dbrpc.NewUserRpc()
 	rpc.Register(useRpc)
+
+	authRpc := dbrpc.NewAuthRpc()
+	rpc.Register(authRpc)
+
+	roleRpc := dbrpc.NewRoleRpc()
+	rpc.Register(roleRpc)
 
 	rpc.HandleHTTP()
 	l, err := net.Listen("tcp", d.dbCfg.Addr)

@@ -15,3 +15,9 @@ type ModelRegReqServerType struct {
 type ModelRegResServerType struct {
 	Err uint8 //0成功 1请求类型格式错误
 }
+
+//当gate网关知道微服务上线时让注册服务器通知大厅
+type ModelRegReqLobbyProxyServer struct {
+	ProxyUrls, ServerNames []string
+	InformServerName       string
+}

@@ -11,6 +11,7 @@ type UserRpc struct {
 	log *utils.Logger
 }
 
+//根据用户查询用户表的信息
 func (u *UserRpc) FindByName(loginName *string, reply *define.RpcDbUserResFindByName) error {
 	dbAccounts := NewDbProxy().Get(DB_Accounts)
 	row := dbAccounts.QueryRow("select userId,userName,loginName,loginPwd,userStatus,userAddTime,userAddId from dubuser where loginName=? limit 1", *loginName)
@@ -26,7 +27,8 @@ func (u *UserRpc) FindByName(loginName *string, reply *define.RpcDbUserResFindBy
 	case err == sql.ErrNoRows:
 		reply.Err = 1
 	case err != nil:
-		u.log.Errorf("def_fun_user.go FindByName method row.Scan err. \n", err)
+		reply.Err = 2
+		u.log.Errorf("def_fun_user.go FindByName method row.Scan err. %v\n", err)
 	default:
 		reply.UserId = userId
 		reply.UserAddId = userAddId
@@ -36,7 +38,7 @@ func (u *UserRpc) FindByName(loginName *string, reply *define.RpcDbUserResFindBy
 		reply.LoginPwd = loginPwd
 
 		if uatime, err := utils.TimeStrtoTime(userAddTime); err != nil {
-			u.log.Errorf("def_fun_user.go FindByName method utils.TimeStrtoTime err. \n", err)
+			u.log.Errorf("def_fun_user.go FindByName method utils.TimeStrtoTime err. %v\n", err)
 		} else {
 			reply.UserAddTime = uatime
 		}
@@ -54,6 +56,3 @@ func NewUserRpc() *UserRpc {
 	}
 	return d_userRpc
 }
-
-// insert into dubuserole (userId,roleId, useRoleStatus,urAddTime,urEditTime,urAddUserId)
-// values(1,1,1,now(),now(),1) on duplicate key update urAddTime=now(),urEditTime=now(),useRoleStatus=1;

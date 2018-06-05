@@ -7,7 +7,8 @@ const (
 
 //注册服务器子命令
 const (
-	CmdSubRegServer_Register_Shut       = 0 //断开连接或者关闭服务命令
-	CmdSubRegServer_Register_Reg        = 1 //向服务器注册命令
-	CmdSubRegServer_Register_Reg_Inform = 2 //通知关联的服务器上线
+	CmdSubRegServer_Register_Shut               = 0 //断开连接或者关闭服务命令
+	CmdSubRegServer_Register_Reg                = 1 //向服务器注册命令
+	CmdSubRegServer_Register_Reg_Inform         = 2 //通知关联的服务器上线
+	CmdSubRegServer_Register_Lobby_Proxy_Server = 3 //向大厅通知与之相关的代理服务器信息
 )

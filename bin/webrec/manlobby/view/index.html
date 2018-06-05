@@ -56,5 +56,30 @@
             ,
             content: $('#login_div')
         });
+		
+		//自定义验证
+        from_ele.verify({
+            //密码验证
+            pwd: [/(.+){6,12}$/, '密码必须6到12位']
+        });
+		
+		{{if .result}}
+			layer_login=layer.open({
+	            type: 1,
+	            id: 'login_result',
+	            shade: 0.8,
+		        {{if .result}}
+		        	content: '<div style="padding: 20px 100px;">登录成功。</div>',
+		        {{else}}
+		        	content: '<div style="padding: 20px 100px;">登录失败。</div>',
+		        {{end}}
+		        btn: '关闭',
+		            btnAlign: 'c',
+		            shade: 1,
+		            yes: function() {
+		            layer.close(layer_login);
+		        }
+	    	});
+		{{end}}
     });
 </script>

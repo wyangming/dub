@@ -1,33 +1,30 @@
 package manlobby
 
 import (
-	"dub/define"
 	"dub/common"
-	"dub/utils"
 	"dub/config"
+	"dub/define"
+	"dub/frame"
+	"dub/secrec"
+	"dub/utils"
 	"fmt"
 	"os"
-	"dub/frame"
-	json "github.com/json-iterator/go"
+
 	"github.com/astaxie/beego"
+	json "github.com/json-iterator/go"
 )
 
-const (
-	ConstServiceUseRpc = iota
-)
-
-type WebUseCenterServer struct {
-	wucCfg     define.WebUserCenterServerConfig //用户的微服务配置
-	logCfg     define.LogConfig                 //日志配置
-	regConn    common.IConnector                //与注册服务器连接
-	log        *utils.Logger                    //日志对象
-	serviceRpc map[uint8]*utils.RpcProxy        //服务ipc集合
+type WebManLobbyCenterServer struct {
+	wucCfg  define.WebManLobbyCenterServerConfig //大厅的微服务配置
+	logCfg  define.LogConfig                     //日志配置
+	regConn common.IConnector                    //与注册服务器连接
+	log     *utils.Logger                        //日志对象
 }
 
-func (w *WebUseCenterServer) Init(cfgPath string) {
+func (w *WebManLobbyCenterServer) Init(cfgPath string) {
 	//读取配置
 	var err error
-	w.wucCfg, w.logCfg, err = config.GetWebUserCenterServerConfig(cfgPath)
+	w.wucCfg, w.logCfg, err = config.GetWebManLobbyCenterServerConfig(cfgPath)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
@@ -54,7 +51,7 @@ func (w *WebUseCenterServer) Init(cfgPath string) {
 	//设定基础的配置
 	//beego.BConfig.WebConfig.StaticDir = map[string]string{w.wucCfg.WebStaticUrl: w.wucCfg.WebStaticPath}
 	beego.BConfig.WebConfig.ViewsPath = w.wucCfg.WebWiew
-	beego.SetStaticPath(w.wucCfg.WebStaticUrl,w.wucCfg.WebStaticPath)
+	beego.SetStaticPath(w.wucCfg.WebStaticUrl, w.wucCfg.WebStaticPath)
 
 	beego.BConfig.RunMode = w.wucCfg.RunMode
 
@@ -67,7 +64,7 @@ func (w *WebUseCenterServer) Init(cfgPath string) {
 }
 
 //注册服务器
-func (w *WebUseCenterServer) Reg() {
+func (w *WebManLobbyCenterServer) Reg() {
 	serverInfo := &define.ModelRegReqServerType{
 		Addr:       w.wucCfg.Addr,
 		ServerName: define.ServerNameWeb_ManLobbyServer,
@@ -93,9 +90,21 @@ func (w *WebUseCenterServer) Reg() {
 }
 
 //注册服务回调函数
-func (w *WebUseCenterServer) RegServiceCallBack(mainId, subId uint16, data []byte) bool {
+func (w *WebManLobbyCenterServer) RegServiceCallBack(mainId, subId uint16, data []byte) bool {
 	if mainId == define.CmdRegServer_Register {
 		switch subId {
+		case define.CmdSubRegServer_Register_Lobby_Proxy_Server:
+			//理新gate代理微服务的信息
+			req := &define.ModelRegReqLobbyProxyServer{}
+			err := json.Unmarshal(data, req)
+			if err != nil {
+				w.log.Errorf("server.go RegServiceCallBack method json.Unmarshal(data, &reqRegister) err. %v\n", err)
+				return true
+			}
+
+			if len(req.ProxyUrls) > 0 && len(req.ProxyUrls) == len(req.ServerNames) {
+				secrec.UpdateProxyInfo(req.ProxyUrls, req.ServerNames)
+			}
 		case define.CmdSubRegServer_Register_Reg_Inform:
 			//下层服务上线通知
 			res := &define.ModelRegReqServerType{}
@@ -118,8 +127,8 @@ func (w *WebUseCenterServer) RegServiceCallBack(mainId, subId uint16, data []byt
 
 				//配置rpc服务
 				switch res.ServerName {
-				case define.ServerNameWeb_ManLobbyServer:
-					w.serviceRpc[ConstServiceUseRpc] = tmp_rpc
+				case define.ServerNameService_UseServer:
+					secrec.AddSecRpc(secrec.ConstServiceUseRpc, tmp_rpc)
 				}
 			}
 		case define.CmdSubRegServer_Register_Reg:
@@ -140,12 +149,11 @@ func (w *WebUseCenterServer) RegServiceCallBack(mainId, subId uint16, data []byt
 	return true
 }
 
-var webUseCenter *WebUseCenterServer
+var webUseCenter *WebManLobbyCenterServer
 
-func NewWebUseCenterServer() *WebUseCenterServer {
+func NewWebManLobbyCenterServer() *WebManLobbyCenterServer {
 	if webUseCenter == nil {
-		webUseCenter = new(WebUseCenterServer)
-		webUseCenter.serviceRpc = make(map[uint8]*utils.RpcProxy)
+		webUseCenter = new(WebManLobbyCenterServer)
 	}
 	return webUseCenter
 }

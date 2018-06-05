@@ -5,7 +5,7 @@ import (
 	"dub/utils"
 )
 
-type UseBaseController struct {
+type LobbyBaseController struct {
 	frame.DubBaseController
 	log *utils.Logger
 }

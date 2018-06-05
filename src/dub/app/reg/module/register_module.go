@@ -4,8 +4,9 @@ import (
 	"dub/common"
 	"dub/define"
 	"dub/utils"
-	json "github.com/json-iterator/go"
 	"sync"
+
+	json "github.com/json-iterator/go"
 )
 
 //注册模块 处理注册命令
@@ -24,9 +25,28 @@ func (r *RegisterModule) OnMessage(id uint16, data []byte, ses common.ISession) 
 		result = r.registerServer(data, ses)
 	case define.CmdSubRegServer_Register_Shut:
 		result = r.registerShutDown(ses)
+	case define.CmdSubRegServer_Register_Lobby_Proxy_Server:
+		result = r.lobbyProxyServer(data, ses)
 	}
 
 	return result
+}
+
+//向大厅服务器发送代理微服务的地址信息
+func (r *RegisterModule) lobbyProxyServer(data []byte, ses common.ISession) bool {
+	req := &define.ModelRegReqLobbyProxyServer{}
+	err := json.Unmarshal(data, req)
+	if err != nil {
+		r.log.Errorf("register_module.go lobbyProxyServer method json.Unmarshal(data, &reqRegister) err. %v\n", err)
+		return true
+	}
+
+	for mk, mv := range r.servers {
+		if mv.ServerName == req.InformServerName {
+			r.serverSession[mk].Send(define.CmdRegServer_Register, define.CmdSubRegServer_Register_Lobby_Proxy_Server, data)
+		}
+	}
+	return true
 }
 
 //关闭一个服务器

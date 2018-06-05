@@ -1,15 +1,16 @@
 package main
 
 import (
-	_ "github.com/go-sql-driver/mysql"
-	"os"
-	"fmt"
 	"bufio"
-	"io"
-	"strings"
 	"database/sql"
-	"net/rpc"
+	"fmt"
+	"io"
 	"net/http"
+	"net/rpc"
+	"os"
+	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type Pxy struct {
@@ -21,7 +22,8 @@ func (p *Pxy) ServeHTTP(rw http.ResponseWriter, re *http.Request) {
 }
 
 func main() {
-	http.ListenAndServe(":81", &Pxy{})
+	//	http.ListenAndServe(":81", &Pxy{})
+	addRegion()
 }
 
 func rpcDemo() {
@@ -70,7 +72,7 @@ func addRegion() {
 		regions = append(regions, strings.Split(str, "-"))
 	}
 
-	dbSql, err := sql.Open("mysql", "zhuiju365:zhuiju365@tcp(114.215.99.36:3306)/f273c?charset=utf8&loc=Local")
+	dbSql, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/test?charset=utf8&loc=Local")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
@@ -83,7 +85,7 @@ func addRegion() {
 
 	count := 0
 	length := len(regions)
-	stm, err := dbSql.Prepare("insert into region(regionName,regionCode) values(?,?)")
+	stm, err := dbSql.Prepare("insert into dubregion(regionName,regionCode) values(?,?)")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)

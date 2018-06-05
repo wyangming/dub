@@ -34,9 +34,58 @@ func GetGateWebServerConfig(path string) (define.GateWebServerConfig, define.Log
 }
 
 //得到web用户中心
-func GetWebUserCenterServerConfig(path string) (define.WebUserCenterServerConfig, define.LogConfig, error) {
+func GetWebManUseCenterServerConfig(path string) (define.WebManUseCenterServerConfig, define.LogConfig, error) {
 	var (
-		wuc_opt define.WebUserCenterServerConfig
+		wuc_opt define.WebManUseCenterServerConfig
+		log_opt define.LogConfig
+	)
+
+	c, err := ReadConfigFile(path)
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+
+	wuc_opt.Addr, err = c.GetString("net", "addr")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+	wuc_opt.RegAddr, err = c.GetString("net", "regAddr")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+	wuc_opt.WebWiew, err = c.GetString("web", "webView")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+	wuc_opt.ProxyUrl, err = c.GetString("web", "proxyUrl")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+	wuc_opt.WebStaticUrl, err = c.GetString("web", "webStaticUrl")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+	wuc_opt.WebStaticPath, err = c.GetString("web", "webStaticPath")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+	wuc_opt.RunMode, err = c.GetString("web", "runMode")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+
+	err = fullLog(c, &log_opt)
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+
+	return wuc_opt, log_opt, nil
+}
+
+//得到web登录大厅
+func GetWebManLobbyCenterServerConfig(path string) (define.WebManLobbyCenterServerConfig, define.LogConfig, error) {
+	var (
+		wuc_opt define.WebManLobbyCenterServerConfig
 		log_opt define.LogConfig
 	)
 
@@ -155,6 +204,18 @@ func GetDatabaseServerConfig(path string) (define.DatabaseServerConfig, define.L
 	}
 
 	db_opt.RegAddr, err = c.GetString("net", "regAddr")
+	if err != nil {
+		return db_opt, log_opt, err
+	}
+	db_opt.Dburl, err = c.GetString("database", "dburl")
+	if err != nil {
+		return db_opt, log_opt, err
+	}
+	db_opt.MaxOpenConns, err = c.GetInt("database", "MaxOpenConns")
+	if err != nil {
+		return db_opt, log_opt, err
+	}
+	db_opt.MaxIdleConns, err = c.GetInt("database", "MaxIdleConns")
 	if err != nil {
 		return db_opt, log_opt, err
 	}

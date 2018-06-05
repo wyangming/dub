@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"dub/define"
 	"dub/utils"
+	"errors"
 )
 
 const (
@@ -20,6 +21,23 @@ func (d *DbProxy) Init(cfg *define.DatabaseServerConfig) error {
 	d.log.Infof("db_server %s db_server start ...\n", cfg.Addr)
 
 	d.dbMap = make(map[int]*sql.DB)
+	d.log.Infof("%s\n", cfg.Dburl)
+
+	if cfg.Dburl != "" {
+		dbAccount, err := sql.Open("mysql", cfg.Dburl)
+		if err != nil {
+			d.log.Infoln(err)
+			return errors.New("Connect platformdb error!")
+		}
+		dbAccount.SetMaxIdleConns(cfg.MaxOpenConns)
+		dbAccount.SetMaxIdleConns(cfg.MaxIdleConns)
+		dbAccount.Ping()
+
+		d.dbMap[DB_Accounts] = dbAccount
+
+		d.log.Infoln("db_server connect accountsdb successful!")
+	}
+
 	return nil
 }
 

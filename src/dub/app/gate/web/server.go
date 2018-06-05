@@ -1,26 +1,27 @@
 package web
 
 import (
-	"dub/define"
 	"dub/common"
-	"dub/utils"
 	"dub/config"
-	"fmt"
-	"os"
+	"dub/define"
 	"dub/frame"
-	json "github.com/json-iterator/go"
+	"dub/utils"
+	"fmt"
 	"net/http"
-	"net/url"
-	"strings"
 	"net/http/httputil"
+	"net/url"
+	"os"
+	"strings"
+
+	json "github.com/json-iterator/go"
 )
 
 type GateWebServer struct {
-	gwsCfg    define.GateWebServerConfig //web网关服务配置
-	logCfg    define.LogConfig           //日志配置
-	regConn   common.IConnector          //与注册服务器连接
-	log       *utils.Logger              //日志对象
-	proxyUrls map[string]string          //代理的路径与服务器映射
+	gwsCfg    define.GateWebServerConfig               //web网关服务配置
+	logCfg    define.LogConfig                         //日志配置
+	regConn   common.IConnector                        //与注册服务器连接
+	log       *utils.Logger                            //日志对象
+	proxyUrls map[string]*define.ModelRegReqServerType //代理的路径与服务器映射
 }
 
 func (g *GateWebServer) Init(cfgPath string) {
@@ -49,7 +50,7 @@ func (g *GateWebServer) Init(cfgPath string) {
 	g.Reg()
 	log.Infof("reg %s server is %s\n", g.logCfg.DeviceName, g.gwsCfg.Addr)
 
-	g.proxyUrls = make(map[string]string)
+	g.proxyUrls = make(map[string]*define.ModelRegReqServerType)
 	//启动代理服务器
 	g.StartProxy()
 }
@@ -74,17 +75,19 @@ func (g *GateWebServer) StartProxy() {
 //代理方案实现的方法
 func (g *GateWebServer) reverseProxy() *httputil.ReverseProxy {
 	director := func(req *http.Request) {
+		req_url := req.URL.Path
 		proxy_url := "/"
 		proxy_server := g.proxyUrls[proxy_url]
 		for url_key, url_val := range g.proxyUrls {
-			if url_key != "/" && url_key[:len(url_key)] == url_key {
+			if url_key != "/" && req_url[:len(url_key)] == url_key {
 				proxy_url = url_key
 				proxy_server = url_val
 				break
 			}
 		}
 
-		newUrl, err := url.Parse(fmt.Sprintf("http://%s%s", proxy_server, strings.Replace(req.URL.Path, proxy_url, "", 1)))
+		newUrl, err := url.Parse(fmt.Sprintf("http://%s%s", proxy_server.Addr, strings.Replace(req.URL.Path, proxy_url, "", 1)))
+		g.log.Infof("proxy_url is %s and proxy_server is %v\n", proxy_url, proxy_server)
 		if err != nil {
 			g.log.Errorf("server.go ServeHTTP method http proxy url.Parse err %v\n", err)
 			return
@@ -140,14 +143,31 @@ func (g *GateWebServer) RegServiceCallBack(mainId, subId uint16, data []byte) bo
 			//web网关接入web应用服务
 			if res.ServerType == 2 {
 				//配置相应的web微服务
-				switch res.ServerName {
-				case define.ServerNameWeb_ManLobbyServer:
-					if len(res.ProxyUrl) < 0 {
-						res.ProxyUrl = "/"
-					}
-					g.proxyUrls[res.ProxyUrl] = res.Addr
+				if len(res.ProxyUrl) < 0 {
+					res.ProxyUrl = "/"
 				}
+				g.proxyUrls[res.ProxyUrl] = res
 				g.log.Infof("web service proxy url %s host %s\n", res.ProxyUrl, res.Addr)
+
+				//让注册服务器通知大厅服务器代理的信息
+				lobProxyServer := &define.ModelRegReqLobbyProxyServer{}
+				for mk, mv := range g.proxyUrls {
+					lobProxyServer.ProxyUrls = append(lobProxyServer.ProxyUrls, mk)
+					lobProxyServer.ServerNames = append(lobProxyServer.ServerNames, mv.ServerName)
+				}
+				lobProxyServer.InformServerName = define.ServerNameWeb_ManLobbyServer
+				data, err := json.Marshal(lobProxyServer)
+				if err != nil {
+					g.log.Errorf("server.go RegServiceCallBack method json.Marshal(serverInfo) err %v\n", err)
+					return true
+				}
+
+				//发送注册命令
+				err = g.regConn.Send(define.CmdRegServer_Register, define.CmdSubRegServer_Register_Lobby_Proxy_Server, data)
+				if err != nil {
+					g.log.Errorf("server.go RegServiceCallBack method g.regConn.Send(define.CmdRegServer_Register %d, define.CmdSubRegServer_Register_Reg %d, data) err %v\n", define.CmdRegServer_Register, define.CmdSubRegServer_Register_Reg, err)
+					return true
+				}
 			}
 		case define.CmdSubRegServer_Register_Reg:
 			res := &define.ModelRegResServerType{}
