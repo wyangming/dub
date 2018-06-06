@@ -1,12 +1,9 @@
 package controller
 
-import (
-	"dub/utils"
-)
+import ()
 
 type ManDefaultController struct {
 	UseBaseController
-	logger *utils.Logger
 }
 
 func (m *ManDefaultController) Get() {

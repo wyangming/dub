@@ -49,10 +49,16 @@ func (w *WebManLobbyCenterServer) Init(cfgPath string) {
 
 	//启动自己的http服务器
 	//设定基础的配置
-	//beego.BConfig.WebConfig.StaticDir = map[string]string{w.wucCfg.WebStaticUrl: w.wucCfg.WebStaticPath}
 	beego.BConfig.WebConfig.ViewsPath = w.wucCfg.WebWiew
 	beego.SetStaticPath(w.wucCfg.WebStaticUrl, w.wucCfg.WebStaticPath)
 	beego.BConfig.WebConfig.Session.SessionOn = true
+	//如果想让session共享把所有的SessionProvider与SessionProviderConfig配置为一个地方，前提是在同一台服务器上
+	//内存方式实现不了共享
+	beego.BConfig.WebConfig.Session.SessionProvider = w.wucCfg.SessionProvider
+	beego.BConfig.WebConfig.Session.SessionProviderConfig = w.wucCfg.SessionProviderConfig
+	if w.wucCfg.SessionProvider != "memory" {
+		RegSessionGobStruct()
+	}
 
 	beego.BConfig.RunMode = w.wucCfg.RunMode
 

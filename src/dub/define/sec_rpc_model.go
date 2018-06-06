@@ -27,7 +27,7 @@ type RpcSecUseResLoginByLoginName struct {
 	UrMain                bool      //是否为主角色
 
 	//权限信息
-	Auths []*RpcSecUseResAuthModel //所拥有的权限
+	Auths []RpcSecUseResAuthModel //所拥有的权限
 }
 
 //用户服务权限模型

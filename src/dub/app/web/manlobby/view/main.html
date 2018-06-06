@@ -64,6 +64,14 @@
   
 				setIframe();
 				$(window).on('resize', setIframe);
+
+				$.post({
+					url:"{{.baseUrl}}/ajaxAuth",
+					callback:function(data){
+						alert(data);
+					},
+					type:"json"
+				});
 		});
 	</script>
 </html>

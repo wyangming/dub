@@ -28,11 +28,13 @@ type ServiceUseServerConfig struct {
 
 //大厅中心
 type WebManLobbyCenterServerConfig struct {
-	Addr          string //web服务的ip地址及端口
-	WebWiew       string //web页面的路径地址
-	WebStaticPath string //web页面路径的静态地址
-	WebStaticUrl  string //web页面的静态url
-	RunMode       string //运行模式
+	Addr                  string //web服务的ip地址及端口
+	WebWiew               string //beego的web页面的路径地址
+	WebStaticPath         string //beego的web页面路径的静态地址
+	WebStaticUrl          string //beego的web页面的静态url
+	RunMode               string //beego的运行模式
+	SessionProvider       string //beego的session存储方式
+	SessionProviderConfig string //beego的session的存储位置
 
 	ProxyUrl string //被gate代理的url
 	RegAddr  string //注册服务器
@@ -40,11 +42,13 @@ type WebManLobbyCenterServerConfig struct {
 
 //用户中心
 type WebManUseCenterServerConfig struct {
-	Addr          string //web服务的ip地址及端口
-	WebWiew       string //web页面的路径地址
-	WebStaticPath string //web页面路径的静态地址
-	WebStaticUrl  string //web页面的静态url
-	RunMode       string //运行模式
+	Addr                  string //web服务的ip地址及端口
+	WebWiew               string //beego的web页面的路径地址
+	WebStaticPath         string //beego的web页面路径的静态地址
+	WebStaticUrl          string //beego的web页面的静态url
+	RunMode               string //beego的运行模式
+	SessionProvider       string //beego的session存储方式
+	SessionProviderConfig string //beego的session的存储位置
 
 	ProxyUrl string //被gate代理的url
 	RegAddr  string //注册服务器

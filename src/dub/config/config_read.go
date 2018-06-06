@@ -73,6 +73,14 @@ func GetWebManUseCenterServerConfig(path string) (define.WebManUseCenterServerCo
 	if err != nil {
 		return wuc_opt, log_opt, err
 	}
+	wuc_opt.SessionProvider, err = c.GetString("web", "sessionProvider")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+	wuc_opt.SessionProviderConfig, err = c.GetString("web", "sessionProviderConfig")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
 
 	err = fullLog(c, &log_opt)
 	if err != nil {
@@ -119,6 +127,14 @@ func GetWebManLobbyCenterServerConfig(path string) (define.WebManLobbyCenterServ
 		return wuc_opt, log_opt, err
 	}
 	wuc_opt.RunMode, err = c.GetString("web", "runMode")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+	wuc_opt.SessionProvider, err = c.GetString("web", "sessionProvider")
+	if err != nil {
+		return wuc_opt, log_opt, err
+	}
+	wuc_opt.SessionProviderConfig, err = c.GetString("web", "sessionProviderConfig")
 	if err != nil {
 		return wuc_opt, log_opt, err
 	}

@@ -77,7 +77,7 @@ func (s *SecUseRpc) LoginByLoginName(arg *define.RpcSecUseReqLoginByLoginName, r
 			AuthShowStatus:      auth.AuthShowStatus,
 			AuthType:            auth.AuthType,
 		}
-		reply.Auths = append(reply.Auths, &sec_auth)
+		reply.Auths = append(reply.Auths, sec_auth)
 	}
 
 	return nil

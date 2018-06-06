@@ -1,13 +1,15 @@
 package frame
 
 import (
-	"github.com/astaxie/beego"
 	"dub/define"
+	"dub/utils"
+	"github.com/astaxie/beego"
 )
 
 type DubBaseController struct {
 	ProxyBaseUrl string //web服务被代理的基础路径
 	beego.Controller
+	logger *utils.Logger
 }
 
 func (d *DubBaseController) Prepare() {
@@ -18,4 +20,11 @@ func (d *DubBaseController) Prepare() {
 		proxy_url = ""
 	}
 	d.Data["baseUrl"] = proxy_url
+}
+
+func (d *DubBaseController) Log() *utils.Logger {
+	if d.logger == nil {
+		d.logger = utils.NewLogger()
+	}
+	return d.logger
 }

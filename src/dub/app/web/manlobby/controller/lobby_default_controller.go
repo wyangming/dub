@@ -4,20 +4,11 @@ import (
 	"dub/app/web/manlobby/model"
 	"dub/define"
 	"dub/secrec"
-	"dub/utils"
 	"fmt"
 )
 
 type ManDefaultController struct {
 	LobbyBaseController
-	logger *utils.Logger
-}
-
-func (m *ManDefaultController) log() *utils.Logger {
-	if m.logger == nil {
-		m.logger = utils.NewLogger()
-	}
-	return m.logger
 }
 
 func (m *ManDefaultController) Post() {
@@ -41,7 +32,7 @@ func (m *ManDefaultController) Post() {
 	use_rpc := secrec.GetRpc(secrec.ConstServiceUseRpc)
 	if use_rpc == nil {
 		m.Data["msg"] = "服务器错误"
-		m.log().Errorf("not find use_rpc info\n")
+		m.Log().Errorf("not find use_rpc info\n")
 		return
 	}
 
@@ -50,10 +41,12 @@ func (m *ManDefaultController) Post() {
 		LoginPwd:  pwd,
 	}
 	reply := define.RpcSecUseResLoginByLoginName{}
+
+	//测试使用
 	err := use_rpc.Call("SecUseRpc.LoginByLoginName", &arg, &reply)
 	if err != nil {
 		m.Data["msg"] = "服务器错误"
-		m.log().Errorf("use_default_controller.go Post method s.dbRpc.Call SecUseRpc.LoginByLoginName err. %v\n", err)
+		m.Log().Errorf("use_default_controller.go Post method s.dbRpc.Call SecUseRpc.LoginByLoginName err. %v\n", err)
 		return
 	}
 
@@ -70,6 +63,8 @@ func (m *ManDefaultController) Post() {
 
 	showConAuths := make([]*model.ConAuth, 0)
 	AllConAuths := make([]*model.ConAuth, 0, len(reply.Auths))
+	fmt.Println(showConAuths)
+	fmt.Println(AllConAuths)
 	//替换所有微服务的url
 	if len(reply.Auths) > 0 {
 		for i := 0; i < len(reply.Auths); i++ {
@@ -80,10 +75,10 @@ func (m *ManDefaultController) Post() {
 		}
 	}
 
+	m.SetSession(define.Web_Session_Name_Man_Login_Use, reply)
+
 	//权限信息放到前台
-	//m.Data["Auths"] = *reply.Auths
-	fmt.Println(showConAuths)
-	fmt.Println(AllConAuths)
+	m.Data["LoginInfo"] = reply
 
 	m.Data["result"] = true
 	m.Data["msg"] = "登录成功"
@@ -92,4 +87,27 @@ func (m *ManDefaultController) Post() {
 
 func (m *ManDefaultController) Get() {
 	m.TplName = "index.html"
+}
+
+//得到当前用户的权限
+func (m *ManDefaultController) AjaxAuth() {
+	result := make(map[string]interface{})
+	result["result"] = false
+
+	ses_val := m.GetSession(define.Web_Session_Name_Man_Login_Use)
+	if ses_val == nil {
+		result["msg"] = "no login"
+		m.Data["json"] = result
+		m.ServeJSON()
+	}
+
+	if login_info, login_ok := ses_val.(define.RpcSecUseResLoginByLoginName); !login_ok {
+		result["msg"] = "no login"
+	} else {
+		result["result"] = true
+		result["auths"] = login_info.Auths
+	}
+	m.Data["json"] = result
+
+	m.ServeJSON()
 }
