@@ -16,18 +16,18 @@
 		    <div class="layui-side layui-bg-black">
 			    <div class="layui-side-scroll">
 			        <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
-			        <ul class="layui-nav layui-nav-tree"  lay-filter="left_menu_all">
-				        <li class="layui-nav-item layui-nav-itemed">
+			        <ul class="layui-nav layui-nav-tree"  lay-filter="left_menu_all" id="menu_ul">
+				        <!--<li class="layui-nav-item layui-nav-itemed">
 				            <a class="" href="javascript:;">常用功能</a>
 				            <dl class="layui-nav-child">
 					            <dd><a href="http://www.baidu.com" target="iframe_content">解析地址</a></dd>
 					            <dd><a href="http://www.163.com" target="iframe_content">会员管理</a></dd>
-								<!--<dd><a href="javascript:;" target="iframe_content">优酷</a></dd>
+								<dd><a href="javascript:;" target="iframe_content">优酷</a></dd>
                                 <dd><a href="javascript:;" target="iframe_content">腾讯</a></dd>
-                                <dd><a href="javascript:;" target="iframe_content">乐视</a></dd>-->
+                                <dd><a href="javascript:;" target="iframe_content">乐视</a></dd>
 				            </dl>
 				        </li>
-				        <!--<li class="layui-nav-item">
+				        <li class="layui-nav-item">
 				            <a href="javascript:;">解决方案</a>
 				            <dl class="layui-nav-child">
 					            <dd><a href="javascript:;">列表一</a></dd>
@@ -65,12 +65,32 @@
 				setIframe();
 				$(window).on('resize', setIframe);
 
-				$.post({
+				$.ajax({
 					url:"{{.baseUrl}}/ajaxAuth",
-					callback:function(data){
-						alert(data);
-					},
-					type:"json"
+					async:false,
+					type:"POST",
+					dataType:"json",
+					success:function(data){
+						//拼接字符串添加权限
+						if (!data.result||data.auths.length<1){
+							return
+						}
+
+						$.each(data.auths,function(i,auth){
+							
+							//alert(auth.AuthName);
+							// if ($("#asdfj").length>0){
+							// 	alert("one is true");
+							// }else{
+							// 	alert("one is false");
+							// }
+							// if ($("#tmenu").length>0){
+							// 	alert("two is true");
+							// }else{
+							// 	alert("two is false");
+							// }
+						});
+					}
 				});
 		});
 	</script>

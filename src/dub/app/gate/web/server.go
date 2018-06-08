@@ -75,15 +75,25 @@ func (g *GateWebServer) StartProxy() {
 //代理方案实现的方法
 func (g *GateWebServer) reverseProxy() *httputil.ReverseProxy {
 	director := func(req *http.Request) {
+		//TODO:处理一下找不到代理的问题
 		req_url := req.URL.Path
 		proxy_url := "/"
 		proxy_server := g.proxyUrls[proxy_url]
-		for url_key, url_val := range g.proxyUrls {
-			if url_key != "/" && req_url[:len(url_key)] == url_key {
-				proxy_url = url_key
-				proxy_server = url_val
-				break
+
+		req_url_splits := strings.Split(req_url, "/")
+		if len(req_url_splits) > 1 && req_url_splits[1] != "" {
+			first_url := req_url_splits[1]
+			for url_key, url_val := range g.proxyUrls {
+				if first_url == url_key[1:] {
+					proxy_url = url_key
+					proxy_server = url_val
+					break
+				}
 			}
+		}
+
+		if proxy_server == nil {
+			return
 		}
 
 		newUrl, err := url.Parse(fmt.Sprintf("http://%s%s", proxy_server.Addr, strings.Replace(req.URL.Path, proxy_url, "", 1)))

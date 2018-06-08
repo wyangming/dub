@@ -1,7 +1,7 @@
 package manuse
 
 import (
-	"dub/app/web/manuse/controller"
+	"dub/app/web/manbase/controller"
 	"dub/define"
 	"encoding/gob"
 

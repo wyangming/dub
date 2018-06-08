@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"dub/app/web/manlobby/model"
 	"dub/define"
 	"dub/secrec"
 	"fmt"
@@ -42,7 +41,6 @@ func (m *ManDefaultController) Post() {
 	}
 	reply := define.RpcSecUseResLoginByLoginName{}
 
-	//测试使用
 	err := use_rpc.Call("SecUseRpc.LoginByLoginName", &arg, &reply)
 	if err != nil {
 		m.Data["msg"] = "服务器错误"
@@ -61,10 +59,6 @@ func (m *ManDefaultController) Post() {
 		return
 	}
 
-	showConAuths := make([]*model.ConAuth, 0)
-	AllConAuths := make([]*model.ConAuth, 0, len(reply.Auths))
-	fmt.Println(showConAuths)
-	fmt.Println(AllConAuths)
 	//替换所有微服务的url
 	if len(reply.Auths) > 0 {
 		for i := 0; i < len(reply.Auths); i++ {
@@ -99,6 +93,7 @@ func (m *ManDefaultController) AjaxAuth() {
 		result["msg"] = "no login"
 		m.Data["json"] = result
 		m.ServeJSON()
+		return
 	}
 
 	if login_info, login_ok := ses_val.(define.RpcSecUseResLoginByLoginName); !login_ok {

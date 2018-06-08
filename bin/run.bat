@@ -6,6 +6,6 @@ start /b serviceUse.exe -Config=./config/service/service_use.cfg
 
 start /b manLobby.exe -Config=./config/web/web_center_man_lobby.cfg
 
-start /b manUse.exe -Config=./config/web/web_center_man_use.cfg
+start /b manBase.exe -Config=./config/web/web_center_man_base.cfg
 
 start /b gateWeb.exe -Config=./config/gate/gate_web.cfg

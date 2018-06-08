@@ -74,7 +74,7 @@ func (w *WebManUseCenterServer) Init(cfgPath string) {
 func (w *WebManUseCenterServer) Reg() {
 	serverInfo := &define.ModelRegReqServerType{
 		Addr:       w.wucCfg.Addr,
-		ServerName: define.ServerNameWeb_ManUseServer,
+		ServerName: define.ServerNameWeb_ManBaseServer,
 		ServerType: 2,
 		ProxyUrl:   w.wucCfg.ProxyUrl,
 	}

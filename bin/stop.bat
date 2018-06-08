@@ -2,7 +2,7 @@ taskkill /f /t /im gateWeb.exe
 
 taskkill /f /t /im manLobby.exe
 
-taskkill /f /t /im manUse.exe
+taskkill /f /t /im manBase.exe
 
 taskkill /f /t /im serviceUse.exe
 

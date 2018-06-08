@@ -23,7 +23,10 @@ func (p *Pxy) ServeHTTP(rw http.ResponseWriter, re *http.Request) {
 
 func main() {
 	//	http.ListenAndServe(":81", &Pxy{})
-	addRegion()
+	//addRegion()
+	str := "/aa/bb"
+	fmt.Println(len(strings.Split(str, "/")))
+	fmt.Println(strings.Split(str, "/"))
 }
 
 func rpcDemo() {
