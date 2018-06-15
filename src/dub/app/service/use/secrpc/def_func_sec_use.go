@@ -3,6 +3,7 @@ package secrpc
 import (
 	"dub/define"
 	"dub/utils"
+	"fmt"
 )
 
 type SecUseRpc struct {
@@ -67,17 +68,57 @@ func (s *SecUseRpc) LoginByLoginName(arg *define.RpcSecUseReqLoginByLoginName, r
 	if reply.Err == 2 || auth_reply.Auths == nil || len(auth_reply.Auths) < 1 {
 		return nil
 	}
+
+	auth_all_args := &define.RpcDbAuthReqFindAllAuths{}
+	auth_all_reply := &define.RpcDbAuthResFindAllAuths{}
+	err = s.dbRpc.Call("AuthRpc.FindAllAuths", auth_all_args, auth_all_reply)
+	if err != nil {
+		s.log.Errorf("def_fun_sec_use.go LoginByLoginName method s.dbRpc.Call AuthRpc.FindAuthByRoleId err. %v\n", err)
+		reply.Err = 2
+		return nil
+	}
+	reply.Err = auth_all_reply.Err
+	if reply.Err == 2 || auth_reply.Auths == nil || len(auth_all_reply.Auths) < 1 {
+		return nil
+	}
+
+	use_entity_auth_map := make(map[uint]string)
 	for _, auth := range auth_reply.Auths {
-		sec_auth := define.RpcSecUseResAuthModel{
-			AuthId:              auth.AuthId,
-			AuthPreId:           auth.AuthPreId,
-			AuthName:            auth.AuthName,
-			AuthMicroServerName: auth.AuthMicroServerName,
-			AuthUrl:             auth.AuthUrl,
-			AuthShowStatus:      auth.AuthShowStatus,
-			AuthType:            auth.AuthType,
+		if arg.ReqType == auth.AuthType {
+			sec_auth := define.RpcSecUseResAuthModel{
+				AuthId:              auth.AuthId,
+				AuthPreId:           auth.AuthPreId,
+				AuthName:            auth.AuthName,
+				AuthMicroServerName: auth.AuthMicroServerName,
+				AuthUrl:             auth.AuthUrl,
+				AuthShowStatus:      auth.AuthShowStatus,
+				AuthType:            auth.AuthType,
+			}
+
+			for _, enauth := range auth_all_reply.Auths {
+				if auth.AuthId == enauth.AuthId && len(enauth.AuthUrl) > 0 {
+					use_entity_auth_map[enauth.AuthId] = fmt.Sprintf("[%s]%s", enauth.AuthMicroServerName, enauth.AuthUrl)
+				}
+
+				if auth.AuthNeedUrl != nil && len(auth.AuthNeedUrl) > 0 {
+					for _, needId := range auth.AuthNeedUrl {
+						if needId == enauth.AuthId && len(enauth.AuthUrl) > 0 {
+							use_entity_auth_map[enauth.AuthId] = fmt.Sprintf("[%s]%s", enauth.AuthMicroServerName, enauth.AuthUrl)
+						}
+					}
+				}
+			}
+
+			reply.Auths = append(reply.Auths, sec_auth)
 		}
-		reply.Auths = append(reply.Auths, sec_auth)
+	}
+
+	//把用户的实体权限添加进去
+	if len(use_entity_auth_map) > 0 {
+		reply.PhyAuths = make([]string, 0, len(use_entity_auth_map))
+		for _, val := range use_entity_auth_map {
+			reply.PhyAuths = append(reply.PhyAuths, val)
+		}
 	}
 
 	return nil

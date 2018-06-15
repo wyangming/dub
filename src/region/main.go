@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/rpc"
 	"os"
+	"regexp"
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -23,10 +24,19 @@ func (p *Pxy) ServeHTTP(rw http.ResponseWriter, re *http.Request) {
 
 func main() {
 	//	http.ListenAndServe(":81", &Pxy{})
-	//addRegion()
-	str := "/aa/bb"
-	fmt.Println(len(strings.Split(str, "/")))
-	fmt.Println(strings.Split(str, "/"))
+	addRegion()
+
+	// strs := []string{"aa", "bb", "cc"}
+	// for i, v := range strs {
+	// 	fmt.Println(i, v)
+	// 	for k, j := range strs {
+	// 		fmt.Println(k, j)
+	// 	}
+	// }
+
+	// str := "/aa/bb"
+	// fmt.Println(len(strings.Split(str, "/")))
+	// fmt.Println(strings.Split(str, "/"))
 }
 
 func rpcDemo() {
@@ -88,14 +98,30 @@ func addRegion() {
 
 	count := 0
 	length := len(regions)
-	stm, err := dbSql.Prepare("insert into dubregion(regionName,regionCode) values(?,?)")
+	stm, err := dbSql.Prepare("insert into dubregion(regionCode,regionName,regionLev) values(?,?,?)")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
 	}
 	for count < length {
+		level := 0
+		first, _ := regexp.MatchString("^[0-9]{2}0000", regions[count][0])
+		if first {
+			level = 1
+		} else {
+			two, _ := regexp.MatchString("^[0-9]{4}00", regions[count][0])
+			if two {
+				level = 2
+			} else {
+				third, _ := regexp.MatchString("^[0-9]{6}", regions[count][0])
+				if third {
+					level = 3
+				}
+			}
 
-		stm.Exec(regions[count][0], regions[count][1])
+		}
+
+		stm.Exec(regions[count][0], regions[count][1], level)
 		fmt.Println(regions[count])
 
 		count++

@@ -15,7 +15,7 @@ const (
 //web服务器 type 2
 const (
 	ServerNameWeb_ManLobbyServer = "Service_ManLobbyServer"
-	ServerNameWeb_ManBaseServer  = "Service_ManBaseServer"
+	ServerNameWeb_ManAgentServer = "Service_ManAgentServer"
 )
 
 //网关服务器 type 3

@@ -17,9 +17,8 @@ func (u *UserRpc) FindByName(loginName *string, reply *define.RpcDbUserResFindBy
 	row := dbAccounts.QueryRow("select userId,userName,loginName,loginPwd,userStatus,userAddTime,userAddId from dubuser where loginName=? limit 1", *loginName)
 
 	var (
-		userId, userAddId                             uint
-		userStatus                                    uint8
-		UserName, rowloginName, loginPwd, userAddTime string
+		userId, userAddId, userStatus                 sql.NullInt64
+		UserName, rowloginName, loginPwd, userAddTime sql.NullString
 	)
 	err := row.Scan(&userId, &rowloginName, &rowloginName, &loginPwd, &userStatus, &userAddTime, &userAddId)
 
@@ -28,19 +27,33 @@ func (u *UserRpc) FindByName(loginName *string, reply *define.RpcDbUserResFindBy
 		reply.Err = 1
 	case err != nil:
 		reply.Err = 2
-		u.log.Errorf("def_fun_user.go FindByName method row.Scan err. %v\n", err)
+		u.log.Errorf("def_fun_db_user.go FindByName method row.Scan err. %v\n", err)
 	default:
-		reply.UserId = userId
-		reply.UserAddId = userAddId
-		reply.UserStatus = userStatus
-		reply.UserName = UserName
-		reply.LoginName = rowloginName
-		reply.LoginPwd = loginPwd
+		if userId.Valid {
+			reply.UserId = uint(userId.Int64)
+		}
+		if userAddId.Valid {
+			reply.UserAddId = uint(userAddId.Int64)
+		}
+		if userStatus.Valid {
+			reply.UserStatus = uint8(userStatus.Int64)
+		}
+		if UserName.Valid {
+			reply.UserName = UserName.String
+		}
+		if rowloginName.Valid {
+			reply.LoginName = rowloginName.String
+		}
+		if loginPwd.Valid {
+			reply.LoginPwd = loginPwd.String
+		}
 
-		if uatime, err := utils.TimeStrtoTime(userAddTime); err != nil {
-			u.log.Errorf("def_fun_user.go FindByName method utils.TimeStrtoTime err. %v\n", err)
-		} else {
-			reply.UserAddTime = uatime
+		if userAddTime.Valid {
+			if uatime, err := utils.TimeStrtoTime(userAddTime.String); err != nil {
+				u.log.Errorf("def_fun_db_user.go FindByName method utils.TimeStrtoTime err. %v\n", err)
+			} else {
+				reply.UserAddTime = uatime
+			}
 		}
 	}
 	return nil

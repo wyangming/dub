@@ -7,6 +7,7 @@ import (
 //用户名登录请求的信息
 type RpcSecUseReqLoginByLoginName struct {
 	LoginName, LoginPwd string //用户名密码
+	ReqType             uint8  //请求类型，0是web登录，1是api登录
 }
 
 //用户名登录返回的信息
@@ -27,7 +28,9 @@ type RpcSecUseResLoginByLoginName struct {
 	UrMain                bool      //是否为主角色
 
 	//权限信息
-	Auths []RpcSecUseResAuthModel //所拥有的权限
+	Auths     []RpcSecUseResAuthModel //所拥有的权限
+	MenuAuths []RpcSecUseResAuthModel //如果登录类型为web时在菜单上显示的权限
+	PhyAuths  []string                //用户的实体权限 是权限地址集合存领教到按钮级别 第一段是[微服务名]需要在上层用代理的url替换掉
 }
 
 //用户服务权限模型

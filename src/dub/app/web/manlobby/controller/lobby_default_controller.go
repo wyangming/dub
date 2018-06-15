@@ -4,6 +4,7 @@ import (
 	"dub/define"
 	"dub/secrec"
 	"fmt"
+	"strings"
 )
 
 type ManDefaultController struct {
@@ -11,7 +12,7 @@ type ManDefaultController struct {
 }
 
 func (m *ManDefaultController) Post() {
-	m.TplName = "index.html"
+	m.TplName = "login.html"
 	m.Data["result"] = false
 
 	//非post请求直接跳转到登录页面不做处理
@@ -60,14 +61,39 @@ func (m *ManDefaultController) Post() {
 	}
 
 	//替换所有微服务的url
+	final_auths := make([]define.RpcSecUseResAuthModel, 0)
+	show_auths := make([]define.RpcSecUseResAuthModel, 0)
 	if len(reply.Auths) > 0 {
 		for i := 0; i < len(reply.Auths); i++ {
 			proxy_url := secrec.GetProxyByServerName(reply.Auths[i].AuthMicroServerName)
-			if len(proxy_url) > 0 && proxy_url != "/" {
+			if reply.Auths[i].AuthUrl != "" && len(proxy_url) > 0 && proxy_url != "/" {
 				reply.Auths[i].AuthUrl = fmt.Sprintf("%s%s", proxy_url, reply.Auths[i].AuthUrl)
+			}
+
+			//只有注册的服务才可以加入用户的权限
+			if proxy_url != "" {
+				final_auths = append(final_auths, reply.Auths[i])
+				if reply.Auths[i].AuthShowStatus < 1 {
+					show_auths = append(show_auths, reply.Auths[i])
+				}
 			}
 		}
 	}
+	//处理用户实体权限
+	if len(reply.PhyAuths) > 0 {
+		for i := 0; i < len(reply.PhyAuths); i++ {
+			phyAuth := reply.PhyAuths[i]
+			serName := phyAuth[strings.Index(phyAuth, "[")+1 : strings.Index(phyAuth, "]")]
+			proxy_url := secrec.GetProxyByServerName(serName)
+			if proxy_url == "/" {
+				proxy_url = ""
+			}
+			phyAuth = strings.Replace(phyAuth, fmt.Sprintf("[%s]", serName), proxy_url, 1)
+			reply.PhyAuths[i] = phyAuth
+		}
+	}
+	reply.Auths = final_auths
+	reply.MenuAuths = show_auths
 
 	m.SetSession(define.Web_Session_Name_Man_Login_Use, reply)
 
@@ -80,7 +106,7 @@ func (m *ManDefaultController) Post() {
 }
 
 func (m *ManDefaultController) Get() {
-	m.TplName = "index.html"
+	m.TplName = "login.html"
 }
 
 //得到当前用户的权限
@@ -105,4 +131,16 @@ func (m *ManDefaultController) AjaxAuth() {
 	m.Data["json"] = result
 
 	m.ServeJSON()
+}
+
+func (m *ManDefaultController) Index() {
+	result := make(map[string]interface{})
+	result["result"] = false
+
+	ses_val := m.GetSession(define.Web_Session_Name_Man_Login_Use)
+	if ses_val == nil {
+		m.TplName = "login.html"
+		return
+	}
+	m.TplName = "index.html"
 }

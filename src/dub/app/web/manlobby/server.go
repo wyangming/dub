@@ -66,6 +66,8 @@ func (w *WebManLobbyCenterServer) Init(cfgPath string) {
 	beego.SetLogger("file", fmt.Sprintf(`{"filename":"./log/%s.log"}`, w.logCfg.DeviceName))
 	//路由设定
 	RouteAdd()
+	//添加自定义函数
+	AddFunMap()
 	//启动
 	beego.Run(w.wucCfg.Addr)
 }

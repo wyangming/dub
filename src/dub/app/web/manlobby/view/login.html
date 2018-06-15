@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>管理登录</title>
+    {{template "inc/mate.html" .}}
+    {{template "inc/layui_css.html" .}}
+    {{template "inc/ie_supper.html" .}}
+</head>
+<body>
+    <div id="login_div" style="padding: 25px; line-height: 0px; background-color: #393D49; color: #fff; font-weight: 300;">
+        <form class="layui-form" action="{{.baseUrl}}" method="post">
+            <div class="layui-form-item">
+                <input type="text" name="phone_number" lay-verify="usename" autocomplete="off" placeholder="用户名"
+                       class="layui-input">
+            </div>
+            <div class="layui-form-item">
+                <input type="password" name="pwd" lay-verify="pwd" autocomplete="off" placeholder="密码" class="layui-input">
+            </div>
+            <div class="layui-form-item" style="text-align: center;">
+                <button class="layui-btn layui-btn-big" lay-submit="" lay-filter="btn_login">登录</button>
+                <a href="reg" class="layui-btn layui-btn-big layui-btn-normal">注册</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+{{template "inc/layui_js.html" .}}
+<script type="text/javascript" charset="UTF-8">
+    layui.use(['form', 'layer'], function() {
+        var $ = layui.jquery,
+                layer = layui.layer,
+                from_ele = layui.form;
+        //打开登录窗口
+        layer.open({
+            type: 1,
+            title: false //不显示标题栏
+            ,
+            closeBtn: false,
+            area: '300px;',
+            shade: 0.8,
+            id: 'LAY_login' //设定一个id，防止重复弹出
+            ,
+            moveType: 1 //拖拽模式，0或者1
+            ,
+            content: $('#login_div')
+        });
+		
+		//自定义验证
+        from_ele.verify({
+            //密码验证
+            pwd: [/(.+){6,12}$/, '密码必须6到12位'],
+            usename:[/[0-9a-zA-Z]{5,}/,'用户名必须是5位及以上字母数字符组成']
+        });
+		
+		{{if .result}}
+			layer_login=layer.open({
+	            type: 1,
+	            id: 'login_result',
+	            shade: 0.8,
+		        {{if .result}}
+		        	content: '<div style="padding: 20px 100px;">登录成功。</div>',
+		        {{else}}
+		        	content: '<div style="padding: 20px 100px;">登录失败。</div>',
+		        {{end}}
+		        btn: '关闭',
+		            btnAlign: 'c',
+		            shade: 1,
+		            yes: function() {
+		            layer.close(layer_login);
+		        }
+	    	});
+		{{end}}
+    });
+</script>

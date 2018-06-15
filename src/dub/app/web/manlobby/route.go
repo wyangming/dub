@@ -2,8 +2,7 @@ package manlobby
 
 import (
 	"dub/app/web/manlobby/controller"
-	"dub/define"
-	"encoding/gob"
+	"dub/utils"
 	"github.com/astaxie/beego"
 )
 
@@ -11,8 +10,12 @@ func RouteAdd() {
 	manController := &controller.ManDefaultController{}
 	beego.Router("/", manController, "get:Get")
 	beego.Router("/", manController, "post:Post")
-	beego.Router("/ajaxAuth", manController, "post:AjaxAuth")
+	beego.Router("/index", manController, "*:Index")
 }
 func RegSessionGobStruct() {
-	gob.Register(define.RpcSecUseResLoginByLoginName{})
+	utils.RegSessionGobStruct()
+}
+
+func AddFunMap() {
+	beego.AddFuncMap("c2int", utils.WebTemplateC2Int)
 }

@@ -65,6 +65,9 @@ func (d *DbServer) Init(cfgPath string) {
 	roleRpc := dbrpc.NewRoleRpc()
 	rpc.Register(roleRpc)
 
+	agentRpc := dbrpc.NewAgentRpc()
+	rpc.Register(agentRpc)
+
 	rpc.HandleHTTP()
 	l, err := net.Listen("tcp", d.dbCfg.Addr)
 	if err != nil {

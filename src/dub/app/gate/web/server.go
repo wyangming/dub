@@ -75,6 +75,13 @@ func (g *GateWebServer) StartProxy() {
 //代理方案实现的方法
 func (g *GateWebServer) reverseProxy() *httputil.ReverseProxy {
 	director := func(req *http.Request) {
+		//处理找不到页面报错的问题
+		defer func() {
+			if err := recover(); err != nil {
+				g.log.Errorln("server.go reverseProxy method err recover() do. err is %v", err)
+			}
+		}()
+
 		//TODO:处理一下找不到代理的问题
 		req_url := req.URL.Path
 		proxy_url := "/"

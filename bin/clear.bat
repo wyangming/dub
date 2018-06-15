@@ -1,5 +1,5 @@
 "">./log/webCenterManLobby.log
-"">./log/webCenterManBase.log
+"">./log/webCenterManAgent.log
 
 "">./log/serviceUse.log
 
@@ -13,6 +13,6 @@
 del /F /S /Q db.exe
 del /F /S /Q gateWeb.exe
 del /F /S /Q manLobby.exe
-del /F /S /Q manBase.exe
+del /F /S /Q manAgent.exe
 del /F /S /Q reg.exe
 del /F /S /Q serviceUse.exe
